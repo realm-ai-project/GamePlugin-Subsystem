@@ -1,0 +1,19 @@
+{
+  "name": "com.realmai.unity",
+  "version": "0.1.0",
+  "displayName": "REALM_AI Unity",
+  "description": "Unity package for REALM_AI project",
+  "unity": "2019.4",
+  "documentationUrl": "https://example.com/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "dependencies": {
+    "com.unity.ml-agents": "2.0.0"
+  },
+  "keywords": [],
+  "author": {
+    "name": "REALM_AI",
+    "email": "realmaiproject@example.com",
+    "url": "https://github.com/realm-ai-project"
+  }
+}
