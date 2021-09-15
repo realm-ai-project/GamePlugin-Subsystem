@@ -2,18 +2,18 @@ using System;
 using System.Linq;
 using Unity.MLAgents.Actuators;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace RealmAI {
 
     // TODO ADD EDITOR SCRIPT + validations
+    [Serializable]
     public class RealmContinuousActionSpec {
         public delegate float ContinuousHeuristicDelegate();
 
         public float Min = 0;
         public float Max = 1;
-        public Action<float> Callback = default;
-        public ContinuousHeuristicDelegate Heuristic = default;
-
+        public UnityEvent<float> Callback = default;
     }
 
     [Serializable]
@@ -21,8 +21,7 @@ namespace RealmAI {
         public delegate int DiscreteHeuristicDelegate();
 
         public int Branches = 2;
-        public Action<int> Callback = default;
-        public DiscreteHeuristicDelegate Heuristic = default;
+        public UnityEvent<int> Callback = default;
     }
 
     public class RealmActuatorComponent : ActuatorComponent {
@@ -87,27 +86,7 @@ namespace RealmAI {
         }
 
         public void Heuristic(in ActionBuffers actionBuffersOut) {
-            var continuousActions = actionBuffersOut.ContinuousActions;
-            var discreteActions = actionBuffersOut.DiscreteActions;
-            for (int i = 0; i < _continuousActionSpecs.Length; i++) {
-                // TODO Error checking?
-                if (_continuousActionSpecs[i].Heuristic != null) {
-                    var spec = _continuousActionSpecs[i];
-                    var val = (_continuousActionSpecs[i].Heuristic.Invoke() - spec.Min) / (spec.Max - spec.Min);
-                    continuousActions[i] = val;
-                } else {
-                    continuousActions[i] = 0;
-                }
-            }
-
-            for (int i = 0; i < _discreteActionSpecs.Length; i++) {
-                // TODO Error checking?
-                if (_discreteActionSpecs[i].Heuristic != null) {
-                    discreteActions[i] = _discreteActionSpecs[i].Heuristic.Invoke();
-                } else {
-                    discreteActions[i] = 0;
-                }
-            }
+            // TODO
         }
 
         public void WriteDiscreteActionMask(IDiscreteActionMask actionMask) {
