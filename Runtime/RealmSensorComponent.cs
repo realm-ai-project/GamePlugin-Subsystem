@@ -4,19 +4,14 @@ using Unity.MLAgents.Sensors;
 using UnityEngine;
 
 namespace RealmAI {
-    [Serializable]
-    public struct RewardDelegate {
-        public UnityEngine.Object Object;
-        public string Function;
-
-        public float Invoke() {
-            // TODO null?
-            return 0;
-        }
-    }
-    
     public class RealmSensorComponent : SensorComponent {
-        [SerializeField] private RewardDelegate _rewardFunction = default;
+        [SerializeField] private FloatDelegate _rewardFunction = default;
+        [SerializeField] private IntDelegate _test = default;
+
+        public void Awake() {
+            print(_rewardFunction.Invoke());
+        }
+
         public override ISensor[] CreateSensors()
         {
             return new ISensor[] { new RealmSensor(_rewardFunction) };
@@ -25,10 +20,10 @@ namespace RealmAI {
 
     public class RealmSensor : ISensor
     {
-        private RewardDelegate _rewardFunction = default;
+        private FloatDelegate _rewardFunction = default;
         private List<float> _observations = new List<float>();
         
-        public RealmSensor(RewardDelegate rewardFunction) {
+        public RealmSensor(FloatDelegate rewardFunction) {
             _rewardFunction = rewardFunction;
         }
 
