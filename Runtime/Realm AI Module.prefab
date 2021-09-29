@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _filePrefix: Zombie
-  _fileExtension: dat
+  _fileExtension: json
   _flushPeriod: 60
 --- !u!1 &8869980354377486000
 GameObject:

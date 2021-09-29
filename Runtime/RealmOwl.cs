@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Newtonsoft.Json;
 
 public class RealmOwl : MonoBehaviour
 {
 	[SerializeField] private string _filePrefix = "data";
 	[SerializeField] private string _fileExtension = "dat";
 	[SerializeField] private float _flushPeriod = 60;
-	private BinaryWriter _writer = null;
+	private JsonTextWriter _writer = null;
 	
 	private bool _isAlive = true;
 	private bool _firstEpisode = true;
@@ -24,7 +25,6 @@ public class RealmOwl : MonoBehaviour
 	private void InitializeFile() {
 		if (_writer != null) {
 			_writer.Close();
-			_writer.Dispose();
 			_writer = null;
 		}
 
@@ -35,12 +35,21 @@ public class RealmOwl : MonoBehaviour
 		while (count < 256) {
 			try {
 				var path = $"{_filePrefix}-{count}.{_fileExtension}";
-				_writer = new BinaryWriter(File.Open(path, FileMode.OpenOrCreate));
+				var streamWriter = File.CreateText(path);
+				_writer = new JsonTextWriter(streamWriter);
+				_writer.AutoCompleteOnClose = true;
+				_writer.CloseOutput = true;
 				Debug.Log($"Data saving to {path}");
+				
+				
+				_writer.WriteStartObject();
+				_writer.WritePropertyName("episodes");
+				_writer.WriteStartArray();
 				break;
 			} catch (IOException e) {
 				// exception for file sharing violation
 				if (e.HResult != -2147024864) {
+					Debug.LogException(e);
 					break;
 				}
 			}
@@ -85,14 +94,30 @@ public class RealmOwl : MonoBehaviour
 			}
 		}
 
-		_writer.Write(_episodeNum);
-		_writer.Write(_duration);
-		_writer.Write(_reward);
-		_writer.Write(_positions.Count);
+		_writer.WriteStartObject();
+		
+		_writer.WritePropertyName("episode_number");
+		_writer.WriteValue(_episodeNum);
+		_writer.WritePropertyName("duration");
+		_writer.WriteValue(_duration);
+		_writer.WritePropertyName("reward");
+		_writer.WriteValue(_reward);
+		
+		_writer.WritePropertyName("pos_x");
+		_writer.WriteStartArray();
 		for (int i = 0; i < _positions.Count; i++) {
-			_writer.Write(_positions[i].x);
-			_writer.Write(_positions[i].y);
+			_writer.WriteValue(_positions[i].x);
 		}
+		_writer.WriteEndArray();
+		
+		_writer.WritePropertyName("pos_y");
+		_writer.WriteStartArray();
+		for (int i = 0; i < _positions.Count; i++) {
+			_writer.WriteValue(_positions[i].y);
+		}
+		_writer.WriteEndArray();
+		
+		_writer.WriteEndObject();
 	}
 
 
@@ -102,7 +127,6 @@ public class RealmOwl : MonoBehaviour
 		_isAlive = false;
 		if (_writer != null) {
 			_writer.Close();
-			_writer.Dispose();
 			_writer = null;
 		}
 	}
@@ -113,7 +137,6 @@ public class RealmOwl : MonoBehaviour
 		_isAlive = false;
 		if (_writer != null) {
 			_writer.Close();
-			_writer.Dispose();
 			_writer = null;
 		}
 	}
