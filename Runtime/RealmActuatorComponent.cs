@@ -10,10 +10,9 @@ namespace RealmAI {
     [Serializable]
     public class RealmContinuousActionSpec {
         public delegate float ContinuousHeuristicDelegate();
-
-        public float Min = 0;
-        public float Max = 1;
+        // TODO can also make presets like joysticks/key presses, things that can drop-in and replace common inputs
         public UnityEvent<float> Callback = default;
+        public FloatDelegate Heuristic = default;
     }
 
     [Serializable]
@@ -21,7 +20,8 @@ namespace RealmAI {
         public delegate int DiscreteHeuristicDelegate();
 
         public int Branches = 2;
-        public UnityEvent<int> Callback = default;
+        public UnityEvent<int> Callback = default; //TODO we can also do one callback per branch
+        public IntDelegate Heuristic = default;
     }
 
     public class RealmActuatorComponent : ActuatorComponent {
@@ -76,8 +76,7 @@ namespace RealmAI {
         public void OnActionReceived(ActionBuffers actionBuffers) {
             for (int i = 0; i < _continuousActionSpecs.Length; i++) {
                 var spec = _continuousActionSpecs[i];
-                var val = spec.Min + actionBuffers.ContinuousActions[i] * (spec.Max - spec.Min);
-                _continuousActionSpecs[i].Callback?.Invoke(val);
+                _continuousActionSpecs[i].Callback?.Invoke(actionBuffers.ContinuousActions[i]);
             }
 
             for (int i = 0; i < _discreteActionSpecs.Length; i++) {
@@ -86,7 +85,28 @@ namespace RealmAI {
         }
 
         public void Heuristic(in ActionBuffers actionBuffersOut) {
-            // TODO
+            var continuousActions = actionBuffersOut.ContinuousActions;
+            var discreteActions = actionBuffersOut.DiscreteActions;
+            
+            for (int i = 0; i < _continuousActionSpecs.Length; i++) {
+                // TODO Error checking?
+                if (_continuousActionSpecs[i].Heuristic != null) {
+                    var spec = _continuousActionSpecs[i];
+                    var val = _continuousActionSpecs[i].Heuristic.Invoke();
+                    continuousActions[i] = val;
+                } else {
+                    continuousActions[i] = 0;
+                }
+            }
+
+            for (int i = 0; i < _discreteActionSpecs.Length; i++) {
+                // TODO Error checking?
+                if (_discreteActionSpecs[i].Heuristic != null) {
+                    discreteActions[i] = _discreteActionSpecs[i].Heuristic.Invoke();
+                } else {
+                    discreteActions[i] = 0;
+                }
+            }
         }
 
         public void WriteDiscreteActionMask(IDiscreteActionMask actionMask) {

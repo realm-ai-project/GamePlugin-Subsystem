@@ -5,7 +5,6 @@ using UnityEngine.PlayerLoop;
 
 
 namespace RealmAI {
-    [Serializable]
     public class SerializedDelegate<T> {
         [SerializeField] protected GameObject _target;
         [SerializeField] protected  UnityEngine.Object _script;
@@ -78,4 +77,10 @@ namespace RealmAI {
     
     [Serializable]
     public class IntDelegate : SerializedDelegate<int>{ }
+    
+    [Serializable]
+    public class Vector2Delegate : SerializedDelegate<Vector2>{ }
+    
+    [Serializable]
+    public class BoolDelegate : SerializedDelegate<bool>{ }
 }

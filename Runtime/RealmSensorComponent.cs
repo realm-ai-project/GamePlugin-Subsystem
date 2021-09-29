@@ -5,30 +5,28 @@ using UnityEngine;
 
 namespace RealmAI {
     public class RealmSensorComponent : SensorComponent {
-        [SerializeField] private FloatDelegate _rewardFunction = default;
-        [SerializeField] private IntDelegate _test = default;
-
-        public void Awake() {
-            print(_rewardFunction.Invoke());
-        }
+        [SerializeField] private RealmOwl _realmOwl = default;
+        [SerializeField] private Vector2Delegate _positionFunction = default;
 
         public override ISensor[] CreateSensors()
         {
-            return new ISensor[] { new RealmSensor(_rewardFunction) };
+            return new ISensor[] { new RealmSensor(_realmOwl, _positionFunction) };
         }
     }
 
     public class RealmSensor : ISensor
     {
-        private FloatDelegate _rewardFunction = default;
+        private RealmOwl _realmOwl = default;
+        private Vector2Delegate _positionFunction = default;
         private List<float> _observations = new List<float>();
         
-        public RealmSensor(FloatDelegate rewardFunction) {
-            _rewardFunction = rewardFunction;
+        public RealmSensor(RealmOwl realmOwl, Vector2Delegate positionFunction) {
+            _realmOwl = realmOwl;
+            _positionFunction = positionFunction;
         }
 
         public ObservationSpec GetObservationSpec() {
-            return ObservationSpec.Vector(1);
+            return ObservationSpec.Vector(2);
         }
 
         public CompressionSpec GetCompressionSpec() {
@@ -46,8 +44,10 @@ namespace RealmAI {
 
         public void Update() {
             _observations.Clear();
-            var reward = _rewardFunction.Invoke();
-            _observations.Add(reward);
+            var position = _positionFunction.Invoke();
+            _observations.Add(position.x);
+            _observations.Add(position.y);
+            _realmOwl.RecordPosition(position);
         }
 
         public void Reset() {

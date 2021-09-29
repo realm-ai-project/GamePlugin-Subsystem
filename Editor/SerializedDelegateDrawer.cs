@@ -13,6 +13,8 @@ namespace RealmAI {
 
         private Dictionary<string, int> _typeNameCount = new Dictionary<string, int>();
         
+        // TODO a tooltip would be nice?
+        
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             EditorGUI.BeginProperty(position, label, property);
             
@@ -41,64 +43,67 @@ namespace RealmAI {
             // selected method dropdown 
             string selectedMethodLabel;
             if (scriptProp.objectReferenceValue != null) {
-                selectedMethodLabel = $"{scriptProp.GetType().Name}.{methodProp.stringValue}";
+                selectedMethodLabel = $"{scriptProp.objectReferenceValue.GetType().Name}.{methodProp.stringValue}";
             } else {
                 selectedMethodLabel = "No Method Selected";
             }
-            
-            if (EditorGUI.DropdownButton(methodRect,  new GUIContent(selectedMethodLabel), FocusType.Passive)) {
-                if (targetProp.objectReferenceValue is GameObject target) {
-                    // create dropdown
-                    var menu = new GenericMenu();
-                    
-                    menu.AddItem(new GUIContent("None"), string.IsNullOrEmpty(methodProp.stringValue), OnSelected, (property, target));
-                    menu.AddSeparator("");
-                    
-                    // find attached scripts on game object
-                    var attachedScripts = target.GetComponents<MonoBehaviour>();
-                    
-                    // count types for duplicate type name checks
-                    // if there are duplicate type names, we need to display the namespace for those types to differentiate them
-                    _typeNameCount.Clear();
-                    foreach (var script in attachedScripts) {
-                        var type = script.GetType();
-                        if (_typeNameCount.TryGetValue(type.Name, out var count)) {
-                            _typeNameCount[type.Name] = count + 1;
-                        } else {
-                            _typeNameCount.Add(type.Name, 1);
-                        }
-                    }
 
-                    foreach (var script in attachedScripts) {
-                        if (script == null)
-                            continue;
-                    
-                        var type = script.GetType();
-                        
-                        // if there multiple types with the same name, show their namespace when displayed
-                        string typePath;
-                        _typeNameCount.TryGetValue(type.Name, out var count);
-                        if (count == 1) {
-                            typePath = type.Name;
-                        }else if (string.IsNullOrEmpty(type.Namespace)) {
-                            typePath = type.Name;
-                        } else {
-                            typePath = $"{type.Namespace}.{type.Name}";
+            // create method dropdown, which is disabled if no target object is selected yet
+            using (new EditorGUI.DisabledScope(targetProp.objectReferenceValue == null)) {
+                if (EditorGUI.DropdownButton(methodRect, new GUIContent(selectedMethodLabel), FocusType.Passive)) {
+                    if (targetProp.objectReferenceValue is GameObject target) {
+                        // create dropdown
+                        var menu = new GenericMenu();
+
+                        menu.AddItem(new GUIContent("None"), string.IsNullOrEmpty(methodProp.stringValue), OnSelected, (property, target));
+                        menu.AddSeparator("");
+
+                        // find attached scripts on game object
+                        var attachedScripts = target.GetComponents<MonoBehaviour>();
+
+                        // count types for duplicate type name checks
+                        // if there are duplicate type names, we need to display the namespace for those types to differentiate them
+                        _typeNameCount.Clear();
+                        foreach (var script in attachedScripts) {
+                            var type = script.GetType();
+                            if (_typeNameCount.TryGetValue(type.Name, out var count)) {
+                                _typeNameCount[type.Name] = count + 1;
+                            } else {
+                                _typeNameCount.Add(type.Name, 1);
+                            }
                         }
 
-                        // filter for acceptable methods on script
-                        var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-                        foreach (var method in methods) {
-                            if (method.GetParameters().Length != 0 || method.ReturnType != typeof(T))
+                        foreach (var script in attachedScripts) {
+                            if (script == null)
                                 continue;
 
-                            var selected = scriptProp.objectReferenceValue == script && methodProp.stringValue == method.Name;
-                            menu.AddItem(new GUIContent($"{typePath}/{method.Name}"), selected, OnSelected, (property, target, script, method));
-                        }
-                    }
+                            var type = script.GetType();
 
-                    menu.ShowAsContext();
-                    
+                            // if there multiple types with the same name, show their namespace when displayed
+                            string typePath;
+                            _typeNameCount.TryGetValue(type.Name, out var count);
+                            if (count == 1) {
+                                typePath = type.Name;
+                            } else if (string.IsNullOrEmpty(type.Namespace)) {
+                                typePath = type.Name;
+                            } else {
+                                typePath = $"{type.Namespace}.{type.Name}";
+                            }
+
+                            // filter for acceptable methods on script
+                            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                            foreach (var method in methods) {
+                                if (method.GetParameters().Length != 0 || method.ReturnType != typeof(T))
+                                    continue;
+
+                                var selected = scriptProp.objectReferenceValue == script && methodProp.stringValue == method.Name;
+                                menu.AddItem(new GUIContent($"{typePath}/{method.Name}"), selected, OnSelected, (property, target, script, method));
+                            }
+                        }
+
+                        menu.ShowAsContext();
+
+                    }
                 }
             }
 
@@ -119,7 +124,6 @@ namespace RealmAI {
             }
             {
                 if (o is (SerializedProperty property, GameObject target, MonoBehaviour script, MethodInfo method)) {
-                    Debug.Log($"{target} {script} {method}");
                     property.serializedObject.Update();
                     property.FindPropertyRelative(TargetName).objectReferenceValue = target;
                     property.FindPropertyRelative(ScriptName).objectReferenceValue = script;
@@ -131,11 +135,14 @@ namespace RealmAI {
     }
     
     [CustomPropertyDrawer(typeof(FloatDelegate))]
-    public class FloatDelegateDrawer : SerializedDelegateDrawer<float> {
-    }
-    
-    
+    public class FloatDelegateDrawer : SerializedDelegateDrawer<float> { }
+
     [CustomPropertyDrawer(typeof(IntDelegate))]
-    public class IntDelegateDrawer : SerializedDelegateDrawer<int> {
-    }
+    public class IntDelegateDrawer : SerializedDelegateDrawer<int> { }
+    
+    [CustomPropertyDrawer(typeof(Vector2Delegate))]
+    public class Vector2DelegateDrawer : SerializedDelegateDrawer<Vector2> { }
+    
+    [CustomPropertyDrawer(typeof(BoolDelegate))]
+    public class Bool2DelegateDrawer : SerializedDelegateDrawer<bool> { }
 }
