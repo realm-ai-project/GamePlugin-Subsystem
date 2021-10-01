@@ -165,8 +165,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5124bf75d04bb3a499f79587ebc73268, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _filePrefix: Zombie
-  _fileExtension: json
+  _filePrefix: Data
+  _storageFormat: 0
   _flushPeriod: 60
 --- !u!1 &8869980354377486000
 GameObject:

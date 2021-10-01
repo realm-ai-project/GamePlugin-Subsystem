@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
@@ -7,10 +8,23 @@ namespace RealmAI {
     public class RealmSensorComponent : SensorComponent {
         [SerializeField] private RealmOwl _realmOwl = default;
         [SerializeField] private Vector2Delegate _positionFunction = default;
+        [SerializeField] private float _positionRecordInterval = 0.5f;
 
         public override ISensor[] CreateSensors()
         {
             return new ISensor[] { new RealmSensor(_realmOwl, _positionFunction) };
+        }
+        
+        private void Start() {
+            StartCoroutine(Flusher());
+        }
+        
+        private IEnumerator Flusher() {
+            while (true) {
+                yield return new WaitForSeconds(_positionRecordInterval);
+                var position = _positionFunction.Invoke();
+                _realmOwl.RecordPosition(position);
+            }
         }
     }
 
@@ -47,7 +61,6 @@ namespace RealmAI {
             var position = _positionFunction.Invoke();
             _observations.Add(position.x);
             _observations.Add(position.y);
-            _realmOwl.RecordPosition(position);
         }
 
         public void Reset() {

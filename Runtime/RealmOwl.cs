@@ -2,150 +2,132 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Newtonsoft.Json;
 
-public class RealmOwl : MonoBehaviour
-{
-	[SerializeField] private string _filePrefix = "data";
-	[SerializeField] private string _fileExtension = "dat";
-	[SerializeField] private float _flushPeriod = 60;
-	private JsonTextWriter _writer = null;
-	
-	private bool _isAlive = true;
-	private bool _firstEpisode = true;
-	private int _episodeNum = -1;
-	private float _duration = 0;
-	private float _reward = 0;
-	private List<Vector2> _positions = new List<Vector2>();
-	
-	private void Start() {
-		StartCoroutine(Flusher());
-	}
-	
-	private void InitializeFile() {
-		if (_writer != null) {
-			_writer.Close();
-			_writer = null;
+namespace RealmAI {
+	public class RealmOwl : MonoBehaviour {
+		public enum StorageFormat {
+			Compact,
+			Json
 		}
 
-		// TODO: make multiple processsing saving to a file more robust
-		// TODO: consider policy for overwriting
-		// TODO: consider if we want separate threads for writing
-		var count = 0;
-		while (count < 256) {
-			try {
-				var path = $"{_filePrefix}-{count}.{_fileExtension}";
-				var streamWriter = File.CreateText(path);
-				_writer = new JsonTextWriter(streamWriter);
-				_writer.AutoCompleteOnClose = true;
-				_writer.CloseOutput = true;
-				Debug.Log($"Data saving to {path}");
-				
-				
-				_writer.WriteStartObject();
-				_writer.WritePropertyName("episodes");
-				_writer.WriteStartArray();
-				break;
-			} catch (IOException e) {
-				// exception for file sharing violation
-				if (e.HResult != -2147024864) {
-					Debug.LogException(e);
-					break;
-				}
-			}
-			count++;
-		}
-	}
+		[SerializeField] private string _filePrefix = "data";
+		[SerializeField] private StorageFormat _storageFormat = StorageFormat.Compact;
+		[SerializeField] private float _flushPeriod = 60;
+		private DataFileWriter _fileWriter = null;
 
-	public void StartNewEpisode(int episodeNum) {
-		if (_firstEpisode) {
-			_firstEpisode = false;
-		} else {
-			WriteEpisode();
-		}
-		
-		_episodeNum = episodeNum;
-		_duration = 0;
-		_reward = 0;
-		_positions.Clear();
-	}
+		private bool _isAlive = true;
+		private bool _firstEpisode = true;
+		private int _episodeNum = -1;
+		private float _duration = 0;
+		private float _reward = 0;
+		private List<Vector2> _positions = new List<Vector2>();
 
-	public void RecordDuration(float duration) {
-		_duration = duration;
-	}
-	
-	public void RecordReward(float reward) {
-		_reward = reward;
-	}
-	
-	public void RecordPosition(Vector2 position) {
-		_positions.Add(position);
-	}
-
-	public void WriteEpisode() {
-		if (!_isAlive) {
-			return;
+		private void Start() {
+			StartCoroutine(Flusher());
 		}
 
-		if (_writer == null) {
-			InitializeFile();
-			if (_writer == null) {
+		private void InitializeFile() {
+			if (_fileWriter != null) {
+				Debug.LogWarning("Data storage file is being initialized multiple times!");
 				return;
 			}
+			
+			string fileExtension = "";
+			switch (_storageFormat) {
+				case StorageFormat.Compact:
+					fileExtension = "dat";
+					_fileWriter = new BinaryDataFileWriter();
+					break;
+				case StorageFormat.Json:
+					fileExtension = "json";
+					_fileWriter = new JsonDataFileWriter();
+					break;
+				default:
+					Debug.LogError($"Storage format {_storageFormat} is not supported.");
+					return;
+			}
+			
+			// TODO: make multiple processsing saving to a file more robust
+			// TODO: consider policy for overwriting
+			// TODO: consider if we want separate threads for writing
+			var count = 0;
+			while (count < 256) {
+				try {
+					var path = $"{_filePrefix}-{count}.{fileExtension}";
+					var fileStream = File.OpenWrite(path);
+					_fileWriter.Initialize(fileStream);
+					Debug.Log($"Data saving to {path}");
+					break;
+				} catch (IOException e) {
+					// exception for file sharing violation
+					if (e.HResult != -2147024864) {
+						Debug.LogException(e);
+						break;
+					}
+				}
+
+				count++;
+			}
 		}
 
-		_writer.WriteStartObject();
-		
-		_writer.WritePropertyName("episode_number");
-		_writer.WriteValue(_episodeNum);
-		_writer.WritePropertyName("duration");
-		_writer.WriteValue(_duration);
-		_writer.WritePropertyName("reward");
-		_writer.WriteValue(_reward);
-		
-		_writer.WritePropertyName("pos_x");
-		_writer.WriteStartArray();
-		for (int i = 0; i < _positions.Count; i++) {
-			_writer.WriteValue(_positions[i].x);
-		}
-		_writer.WriteEndArray();
-		
-		_writer.WritePropertyName("pos_y");
-		_writer.WriteStartArray();
-		for (int i = 0; i < _positions.Count; i++) {
-			_writer.WriteValue(_positions[i].y);
-		}
-		_writer.WriteEndArray();
-		
-		_writer.WriteEndObject();
-	}
+		public void StartNewEpisode(int episodeNum) {
+			if (_firstEpisode) {
+				_firstEpisode = false;
+			} else {
+				WriteEpisode();
+			}
 
-
-	private void OnDestroy() {
-		WriteEpisode();
-		
-		_isAlive = false;
-		if (_writer != null) {
-			_writer.Close();
-			_writer = null;
+			_episodeNum = episodeNum;
+			_duration = 0;
+			_reward = 0;
+			_positions.Clear();
 		}
-	}
 
-	private void OnApplicationQuit() {
-		WriteEpisode();
-		
-		_isAlive = false;
-		if (_writer != null) {
-			_writer.Close();
-			_writer = null;
+		public void RecordDuration(float duration) {
+			_duration = duration;
 		}
-	}
 
-	private IEnumerator Flusher() {
-		while (true) {
-			yield return new WaitForSeconds(_flushPeriod);
-			if (_writer != null) {
-				_writer.Flush();
+		public void RecordReward(float reward) {
+			_reward = reward;
+		}
+
+		public void RecordPosition(Vector2 position) {
+			_positions.Add(position);
+		}
+
+		public void WriteEpisode() {
+			if (!_isAlive) {
+				return;
+			}
+
+			if (_fileWriter == null) {
+				InitializeFile();
+				if (_fileWriter == null) {
+					return;
+				}
+			}
+
+			_fileWriter.WriteEpisode(_episodeNum, _duration, _reward, _positions);
+		}
+
+		private void OnDestroy() {
+			WriteEpisode();
+
+			_isAlive = false;
+			_fileWriter?.Close();
+		}
+
+		private void OnApplicationQuit() {
+			WriteEpisode();
+
+			_isAlive = false;
+			_fileWriter?.Close();
+		}
+
+		private IEnumerator Flusher() {
+			while (true) {
+				yield return new WaitForSeconds(_flushPeriod);
+				_fileWriter?.Flush();
 			}
 		}
 	}
