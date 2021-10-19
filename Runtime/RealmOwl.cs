@@ -118,7 +118,9 @@ namespace RealmAI {
 		}
 
 		private void OnApplicationQuit() {
-			WriteEpisode();
+			if (_isAlive) {
+				WriteEpisode();
+			}
 
 			_isAlive = false;
 			_fileWriter?.Close();

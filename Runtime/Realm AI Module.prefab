@@ -49,6 +49,7 @@ MonoBehaviour:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 
+  _positionRecordInterval: 0.5
 --- !u!114 &2656681965178997761
 MonoBehaviour:
   m_ObjectHideFlags: 0
