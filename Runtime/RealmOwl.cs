@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +10,6 @@ namespace RealmAI {
 			Json
 		}
 
-		[SerializeField] private string _saveDirectory = "";
 		[SerializeField] private string _filePrefix = "data";
 		[SerializeField] private StorageFormat _storageFormat = StorageFormat.Compact;
 		[SerializeField] private float _flushPeriod = 60;
@@ -43,6 +41,7 @@ namespace RealmAI {
 				return;
 			}
 			
+			// get file extension and format
 			string fileExtension = "";
 			switch (_storageFormat) {
 				case StorageFormat.Compact:
@@ -58,15 +57,63 @@ namespace RealmAI {
 					return;
 			}
 			
-			// TODO: consider policy for overwriting
-			var count = _instanceId;
-			if (string.IsNullOrEmpty(_saveDirectory)) {
-				_saveDirectory = Application.dataPath;
+			// get directory
+			var saveDirectory = "";
+			if (!Application.isEditor) {
+				var args = System.Environment.GetCommandLineArgs();
+
+				// parse from command line arguments
+				var parseLogFile = false;
+				var logFileArg = "";
+				var parseCustomPath = false;
+				var customPathArg = "";
+				foreach (var arg in args) {
+					if (parseLogFile && logFileArg == "") {
+						logFileArg = arg;
+						parseLogFile = false;
+					} else if (parseCustomPath && customPathArg == "") {
+						customPathArg = arg;
+						parseCustomPath = false;
+					} else {
+						switch (arg) {
+							case "-logFile":
+								parseLogFile = true;
+								break;
+							case "-realmData":
+								parseCustomPath = true;
+								break;
+						}
+					}
+
+					Debug.Log(arg);
+				}
+
+				if (!string.IsNullOrEmpty(customPathArg)) {
+					// custom path is provided
+					saveDirectory = customPathArg;
+				} else if (!string.IsNullOrEmpty(logFileArg)) {
+					// no custom path provided, try save to the same directory as ML-Agents 
+					var directory = Path.GetDirectoryName(logFileArg);
+					if (directory != null && directory.EndsWith("run_logs")) {
+						saveDirectory = $"{directory}/../realmai";
+					}
+				}
 			}
 			
+			if (string.IsNullOrEmpty(saveDirectory)) {
+				saveDirectory = $"{Application.dataPath}/realmai";
+			}
+			
+			// TODO: validate path and handle errors
+			// TODO: consider policy for overwriting
+			// TODO: handle relative path?
+			
+			// open file for writing
+			Directory.CreateDirectory(saveDirectory);
+			var count = _instanceId;
 			while (count < 1e5) {
 				try {
-					var path = $"{_saveDirectory}\\{_filePrefix}-{count}.{fileExtension}";
+					var path = $"{saveDirectory}/{_filePrefix}-{count}.{fileExtension}";
 					var fileExists = File.Exists(path);
 					var fileStream = File.Open(path, FileMode.Create, FileAccess.Write);
 					_fileWriter.Initialize(fileStream);
