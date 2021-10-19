@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -10,18 +11,28 @@ namespace RealmAI {
 			Json
 		}
 
+		[SerializeField] private string _saveDirectory = "";
 		[SerializeField] private string _filePrefix = "data";
 		[SerializeField] private StorageFormat _storageFormat = StorageFormat.Compact;
 		[SerializeField] private float _flushPeriod = 60;
-		private DataFileWriter _fileWriter = null;
 
-		private bool _isAlive = true;
+		// For each instance of this class, assign an integer Id.
+		// This is used to create a unique file name for writing to. 
+		private static int InstancesCount = 0;
+		private int _instanceId = 99999;	
+		
+		private DataFileWriter _fileWriter = null;
 		private bool _firstEpisode = true;
 		private int _episodeNum = -1;
 		private float _duration = 0;
 		private float _reward = 0;
 		private List<Vector2> _positions = new List<Vector2>();
 
+		private void Awake() {
+			_instanceId = InstancesCount;
+			InstancesCount++;
+		}
+		
 		private void Start() {
 			StartCoroutine(Flusher());
 		}
@@ -47,16 +58,23 @@ namespace RealmAI {
 					return;
 			}
 			
-			// TODO: make multiple processsing saving to a file more robust
 			// TODO: consider policy for overwriting
-			// TODO: consider if we want separate threads for writing
-			var count = 0;
-			while (count < 256) {
+			var count = _instanceId;
+			if (string.IsNullOrEmpty(_saveDirectory)) {
+				_saveDirectory = Application.dataPath;
+			}
+			
+			while (count < 1e5) {
 				try {
-					var path = $"{_filePrefix}-{count}.{fileExtension}";
-					var fileStream = File.OpenWrite(path);
+					var path = $"{_saveDirectory}\\{_filePrefix}-{count}.{fileExtension}";
+					var fileExists = File.Exists(path);
+					var fileStream = File.Open(path, FileMode.Create, FileAccess.Write);
 					_fileWriter.Initialize(fileStream);
-					Debug.Log($"Data saving to {path}");
+					if (fileExists) {
+						Debug.Log($"Overwriting existing data on {path}");
+					} else {
+						Debug.Log($"Saving data to {path}");
+					}
 					break;
 				} catch (IOException e) {
 					// exception for file sharing violation
@@ -73,6 +91,7 @@ namespace RealmAI {
 		public void StartNewEpisode(int episodeNum) {
 			if (_firstEpisode) {
 				_firstEpisode = false;
+				InitializeFile();
 			} else {
 				WriteEpisode();
 			}
@@ -95,35 +114,30 @@ namespace RealmAI {
 			_positions.Add(position);
 		}
 
-		public void WriteEpisode() {
-			if (!_isAlive) {
-				return;
-			}
-
+		private void WriteEpisode() {
 			if (_fileWriter == null) {
-				InitializeFile();
-				if (_fileWriter == null) {
-					return;
-				}
+				Debug.LogError("File uninitialized");
+				return;
 			}
 
 			_fileWriter.WriteEpisode(_episodeNum, _duration, _reward, _positions);
 		}
 
-		private void OnDestroy() {
-			WriteEpisode();
-
-			_isAlive = false;
-			_fileWriter?.Close();
-		}
-
-		private void OnApplicationQuit() {
-			if (_isAlive) {
+		private void Close() {
+			if (_fileWriter != null) {
 				WriteEpisode();
 			}
 
-			_isAlive = false;
 			_fileWriter?.Close();
+			_fileWriter = null;
+		}
+
+		private void OnDestroy() {
+			Close();
+		}
+
+		private void OnApplicationQuit() {
+			Close();
 		}
 
 		private IEnumerator Flusher() {
