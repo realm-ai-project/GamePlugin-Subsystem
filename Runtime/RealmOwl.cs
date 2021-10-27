@@ -95,13 +95,14 @@ namespace RealmAI {
 					// no custom path provided, try save to the same directory as ML-Agents 
 					var directory = Path.GetDirectoryName(logFileArg);
 					if (directory != null && directory.EndsWith("run_logs")) {
-						saveDirectory = $"{directory}/../realmai";
+						saveDirectory = $"{directory}/../RealmAI";
 					}
 				}
 			}
 			
+			// TODO see if we want to save data elsewhere when training in editor...
 			if (string.IsNullOrEmpty(saveDirectory)) {
-				saveDirectory = $"{Application.dataPath}/realmai";
+				saveDirectory = $"{Application.dataPath}/RealmAI/Data";
 			}
 			
 			// TODO: validate path and handle errors

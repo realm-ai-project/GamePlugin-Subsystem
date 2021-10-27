@@ -1,0 +1,1 @@
+mlagents-learn %1 --env-path=%2 --behavior-name=%3

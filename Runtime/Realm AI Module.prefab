@@ -166,7 +166,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5124bf75d04bb3a499f79587ebc73268, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _saveDirectory: 
   _filePrefix: data
   _storageFormat: 0
   _flushPeriod: 60
@@ -231,7 +230,7 @@ MonoBehaviour:
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
   m_BehaviorType: 0
-  m_BehaviorName: My Behavior
+  m_BehaviorName: Player
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
