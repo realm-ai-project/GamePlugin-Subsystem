@@ -1,1 +1,1 @@
-realm-tune --behavior-name=%1
+mlagents-learn %1 --run-id="Editor" --force

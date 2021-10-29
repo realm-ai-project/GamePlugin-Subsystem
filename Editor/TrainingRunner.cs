@@ -30,7 +30,7 @@ namespace RealmAI {
                 
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{DefaultEditorTrainingName}\"\"";
+                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\"\"";
                 Process.Start(startInfo);
                 
                 WaitForTrainerAndPlay();
@@ -68,7 +68,7 @@ namespace RealmAI {
                 
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{buildName}\" \"{buildPath}\"\"";
+                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\" \"{buildPath}\" \"{buildName}\"\"";
                 Debug.Log(startInfo.Arguments);
                 Process.Start(startInfo);
             } else {
