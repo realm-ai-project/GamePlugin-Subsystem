@@ -1,5 +1,55 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3604340832326486498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1299716597457167059}
+  - component: {fileID: 4481804292444716366}
+  m_Layer: 0
+  m_Name: VideoRecording
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1299716597457167059
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3604340832326486498}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4888279559872494341}
+  m_Father: {fileID: 2049881649950078003}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4481804292444716366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3604340832326486498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf628c1c26677d34f9ab3f36194c0a1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _realmAgent: {fileID: 4429466108806940741}
+  _recordingCamera: {fileID: 6534901877959408365}
+  _videoResolution: {x: 480, y: 270}
+  _videoFramerate: 30
+  _videosPerMillionSteps: 100
+  _ffmpegPath: c:\ffmpeg\bin\ffmpeg.exe
 --- !u!1 &3936234473448951908
 GameObject:
   m_ObjectHideFlags: 0
@@ -78,6 +128,80 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_CompressionType: 1
   m_ObservationStacks: 1
+--- !u!1 &5974495024764727846
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4888279559872494341}
+  - component: {fileID: 6534901877959408365}
+  m_Layer: 0
+  m_Name: DefaultRecordingCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &4888279559872494341
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5974495024764727846}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1299716597457167059}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &6534901877959408365
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5974495024764727846}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 1
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
 --- !u!1 &7894251635559069868
 GameObject:
   m_ObjectHideFlags: 0
@@ -166,9 +290,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5124bf75d04bb3a499f79587ebc73268, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _realmAgent: {fileID: 4429466108806940741}
   _filePrefix: data
   _storageFormat: 0
   _flushPeriod: 60
+  SaveDirectory: 
 --- !u!1 &8869980354377486000
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,6 +328,7 @@ Transform:
   - {fileID: 9217989327636220972}
   - {fileID: 7024727809794216086}
   - {fileID: 4780453919410718079}
+  - {fileID: 1299716597457167059}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -266,6 +393,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   _realmOwl: {fileID: 8072616143281511398}
+  _realmRecorder: {fileID: 4481804292444716366}
   _episodeReset:
     m_PersistentCalls:
       m_Calls: []

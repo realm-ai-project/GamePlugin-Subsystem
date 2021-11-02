@@ -10,13 +10,14 @@ namespace RealmAI {
 			Json
 		}
 
+		[SerializeField] private RealmAgent _realmAgent = null;
 		[SerializeField] private string _filePrefix = "data";
 		[SerializeField] private StorageFormat _storageFormat = StorageFormat.Compact;
 		[SerializeField] private float _flushPeriod = 60;
 
 		// For each instance of this class, assign an integer Id.
 		// This is used to create a unique file name for writing to. 
-		private static int InstancesCount = 0;
+		private static int _instancesCount = 0;
 		private int _instanceId = 99999;	
 		
 		private DataFileWriter _fileWriter = null;
@@ -27,8 +28,8 @@ namespace RealmAI {
 		private List<Vector2> _positions = new List<Vector2>();
 
 		private void Awake() {
-			_instanceId = InstancesCount;
-			InstancesCount++;
+			_instanceId = _instancesCount;
+			_instancesCount++;
 		}
 		
 		private void Start() {
@@ -57,59 +58,13 @@ namespace RealmAI {
 					return;
 			}
 			
-			// get directory
-			var saveDirectory = "";
-			if (!Application.isEditor) {
-				var args = System.Environment.GetCommandLineArgs();
-
-				// parse from command line arguments
-				var parseLogFile = false;
-				var logFileArg = "";
-				var parseCustomPath = false;
-				var customPathArg = "";
-				foreach (var arg in args) {
-					if (parseLogFile && logFileArg == "") {
-						logFileArg = arg;
-						parseLogFile = false;
-					} else if (parseCustomPath && customPathArg == "") {
-						customPathArg = arg;
-						parseCustomPath = false;
-					} else {
-						switch (arg) {
-							case "-logFile":
-								parseLogFile = true;
-								break;
-							case "-realmData":
-								parseCustomPath = true;
-								break;
-						}
-					}
-
-					Debug.Log(arg);
-				}
-
-				if (!string.IsNullOrEmpty(customPathArg)) {
-					// custom path is provided
-					saveDirectory = customPathArg;
-				} else if (!string.IsNullOrEmpty(logFileArg)) {
-					// no custom path provided, try save to the same directory as ML-Agents 
-					var directory = Path.GetDirectoryName(logFileArg);
-					if (directory != null && directory.EndsWith("run_logs")) {
-						saveDirectory = $"{directory}/../RealmAI";
-					}
-				}
-			}
-			
-			// TODO see if we want to save data elsewhere when training in editor...
-			if (string.IsNullOrEmpty(saveDirectory)) {
-				saveDirectory = $"{Application.dataPath}/RealmAI/Data";
-			}
 			
 			// TODO: validate path and handle errors
 			// TODO: consider policy for overwriting
 			// TODO: handle relative path?
 			
 			// open file for writing
+			var saveDirectory = $"{_realmAgent.SaveDirectory}/Data";
 			Directory.CreateDirectory(saveDirectory);
 			var count = _instanceId;
 			while (count < 1e5) {

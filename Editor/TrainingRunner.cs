@@ -7,7 +7,7 @@ using Debug = UnityEngine.Debug;
 
 namespace RealmAI {
     public class TrainingRunner : MonoBehaviour {
-        private static string DirInProject => $"{Application.dataPath}/realmai/Training";
+        private static string DirInProject => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Training";
         private const string TemplatesPath = "Packages/com.realmai.unity/Editor/Templates";
         
         private const string EditorTrainingScript = "train-editor.bat";
@@ -69,7 +69,7 @@ namespace RealmAI {
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
                 startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\" \"{buildPath}\" \"{buildName}\"\"";
-                Debug.Log(startInfo.Arguments);
+
                 Process.Start(startInfo);
             } else {
                 Debug.Log("Build and Train: Stop playing in the editor and try again.");
@@ -80,18 +80,22 @@ namespace RealmAI {
             Directory.CreateDirectory(DirInProject);
             if (!File.Exists($"{DirInProject}/{EditorTrainingScript}")) {
                 FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingScript}", $"{DirInProject}/{EditorTrainingScript}");
+                Debug.Log($"Editor training script has been created at: {DirInProject}/{EditorTrainingScript}");
             }
-            
-            if (!File.Exists($"{DirInProject}/{BuildTrainingScript}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingScript}", $"{DirInProject}/{BuildTrainingScript}");
-            }
-            
+
             if (!File.Exists($"{DirInProject}/{EditorTrainingConfig}")) {
                 FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingConfig}", $"{DirInProject}/{EditorTrainingConfig}");
+                Debug.Log($"Editor training config has been created at: {DirInProject}/{EditorTrainingConfig}");
+            }
+
+            if (!File.Exists($"{DirInProject}/{BuildTrainingScript}")) {
+                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingScript}", $"{DirInProject}/{BuildTrainingScript}");
+                Debug.Log($"Build training script has been created at: {DirInProject}/{BuildTrainingScript}");
             }
 
             if (!File.Exists($"{DirInProject}/{BuildTrainingConfig}")) {
                 FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingConfig}", $"{DirInProject}/{BuildTrainingConfig}");
+                Debug.Log($"Build training config has been created at: {DirInProject}/{BuildTrainingConfig}");
             }
         }
     }
