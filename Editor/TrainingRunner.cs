@@ -14,6 +14,7 @@ namespace RealmAI {
         private static string BaseResultsDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results";
         private const string TemplatesPath = "Packages/com.realmai.unity/Editor/Templates";
         
+        private const string EnvSetupScript = "env-setup.bat";
         private const string EditorTrainingScript = "train-editor.bat";
         private const string BuildTrainingScript = "train-build.bat";
         private const string EditorTrainingConfig = "train-editor-config.yaml";
@@ -21,7 +22,7 @@ namespace RealmAI {
 
         private const string DefaultTrainingBuildName = "TrainingBuild";
 
-        private const string DateTimeFormat = "yyyy-mm-dd_hh-mm-ss";
+        private const string DateTimeFormat = "yyyy-MM-dd_hh-mm-ss";
         
         // TODO create training runner files on initialize so they can be edited by user
         // TODO add for mac and linux
@@ -37,12 +38,14 @@ namespace RealmAI {
 
                 // run scripts
                 EnsureTrainingScriptsExist();
+                var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
                 var scriptPath = $"{TrainingUtilsDir}/{EditorTrainingScript}";
                 var configPath = $"{TrainingUtilsDir}/{EditorTrainingConfig}";
                 
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\" \"{resultsDir}\"\"";
+                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{configPath}\" \"{resultsDir}\"\"";
+                print(startInfo.Arguments);
                 Process.Start(startInfo);
                 
                 WaitForTrainerAndPlay();
@@ -50,7 +53,7 @@ namespace RealmAI {
                 Debug.Log("Train in Editor: Stop playing in the editor and try again.");
             }
         }
-        
+
          
         private static async void WaitForTrainerAndPlay ()
         {
@@ -82,12 +85,13 @@ namespace RealmAI {
 
                 // run scripts
                 EnsureTrainingScriptsExist();
+                var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
                 var scriptPath = $"{TrainingUtilsDir}/{BuildTrainingScript}";
                 var configPath = $"{TrainingUtilsDir}/{BuildTrainingConfig}";
                 
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\" \"{buildPath}\" \"{behaviorName}\" \"{resultsDir}\"\"";
+                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{configPath}\" \"{buildPath}\" \"{behaviorName}\" \"{resultsDir}\"\"";
 
                 Process.Start(startInfo);
             } else {
@@ -97,6 +101,11 @@ namespace RealmAI {
 
         private static void EnsureTrainingScriptsExist() {
             Directory.CreateDirectory(TrainingUtilsDir);
+            if (!File.Exists($"{TrainingUtilsDir}/{EnvSetupScript}")) {
+                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EnvSetupScript}", $"{TrainingUtilsDir}/{EnvSetupScript}");
+                Debug.Log($"Environment setup script has been created at: {TrainingUtilsDir}/{EnvSetupScript}");
+            }
+            
             if (!File.Exists($"{TrainingUtilsDir}/{EditorTrainingScript}")) {
                 FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingScript}", $"{TrainingUtilsDir}/{EditorTrainingScript}");
                 Debug.Log($"Editor training script has been created at: {TrainingUtilsDir}/{EditorTrainingScript}");

@@ -79,10 +79,13 @@ namespace RealmAI {
             Directory.CreateDirectory(saveDirectory);
             // TODO resolve filename conflicts across multiple environments
             long count = 0;
-            do {
+            var nameOk = false;
+            while (!nameOk) {
                 _recordingOutPath = $"{saveDirectory}/{_totalStepsCompleted + count}";
+
+                nameOk = !File.Exists($"{_recordingOutPath}.{RecordingExtension}") && !File.Exists($"{_recordingOutPath}-temp.{RecordingExtension}");
                 count++;
-            } while (File.Exists($"{_recordingOutPath}.{RecordingExtension}"));
+            }
 
             // frame rate
             // TODO: determine appropriate framerate for recording when not training in editor (just try to track current framerate?)
