@@ -2,7 +2,8 @@
     "name": "RealmAI.Unity.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:54f4222ede563aa4a8a9625198f06e26"
+        "GUID:54f4222ede563aa4a8a9625198f06e26",
+        "GUID:85e0054f8e64b47309646d35f8851f81"
     ],
     "includePlatforms": [
         "Editor"

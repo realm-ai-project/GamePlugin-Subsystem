@@ -110,6 +110,7 @@ namespace RealmAI {
             _recordingProcess = Process.Start(startInfo);
             if (_recordingProcess == null) {
                 Debug.LogError("Failed to start FFmpeg process");
+                _recordingEpisode = false;
                 CancelRecording();
             }
         }
@@ -137,13 +138,12 @@ namespace RealmAI {
 
                 Destroy(rt);
                 Destroy(texture);
-
                 try {
                     stream.WriteTo(_recordingProcess.StandardInput.BaseStream);
                     _recordingProcess.StandardInput.Flush();
-                    throw new IOException("TEST");
                 } catch (IOException e) {
                     Debug.LogException(e);
+                    _recordingEpisode = false;
                     CancelRecording();
                 }
             }
@@ -151,22 +151,29 @@ namespace RealmAI {
         }
 
         private void StopRecording() {
-            _recordingProcess.StandardInput.Close();
-            string output = _recordingProcess.StandardError.ReadToEnd();
-            _recordingProcess.WaitForExit();
-            _recordingProcess.Dispose();
+            try {
+                _recordingProcess.StandardInput.Close();
+                string output = _recordingProcess.StandardError.ReadToEnd();
+                Debug.Log("Recording completed: ffmpeg output:" + output);
+                _recordingProcess.WaitForExit();
+            } finally {
+                _recordingProcess.Dispose();
+            }
             
             _recordedVideoCount++;
-            
-            Debug.Log("Recording completed: ffmpeg output:" + output);
-
             ModifyMetadata();
         }
 
 
         private void CancelRecording() {
-            _recordingEpisode = false;
-            _recordingProcess.Dispose();
+            try {
+                _recordingProcess.StandardInput.Close();
+                string output = _recordingProcess.StandardError.ReadToEnd();
+                Debug.Log("Recording cancelled: ffmpeg output:" + output);
+                _recordingProcess.WaitForExit();
+            } finally {
+                _recordingProcess.Dispose();
+            }
 
             var outfile = $"{_recordingOutPath}-temp.{RecordingExtension}";
             if (File.Exists(outfile)) {

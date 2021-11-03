@@ -1,13 +1,17 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Unity.MLAgents.Policies;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
 namespace RealmAI {
     public class TrainingRunner : MonoBehaviour {
-        private static string DirInProject => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Training";
+        private static string TrainingUtilsDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Training";
+        private static string BaseResultsDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results";
         private const string TemplatesPath = "Packages/com.realmai.unity/Editor/Templates";
         
         private const string EditorTrainingScript = "train-editor.bat";
@@ -15,8 +19,9 @@ namespace RealmAI {
         private const string EditorTrainingConfig = "train-editor-config.yaml";
         private const string BuildTrainingConfig = "train-build-config.yaml";
 
-        private const string DefaultEditorTrainingName = "Editor";
         private const string DefaultTrainingBuildName = "TrainingBuild";
+
+        private const string DateTimeFormat = "yyyy-mm-dd_hh-mm-ss";
         
         // TODO create training runner files on initialize so they can be edited by user
         // TODO add for mac and linux
@@ -24,13 +29,20 @@ namespace RealmAI {
         [MenuItem("Realm AI/Train in Editor")]
         private static void TrainInEditor() {
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
+                // create results directory
+                var behaviorName = FindBehaviorName();
+                var timeStr = DateTime.Now.ToString(DateTimeFormat);
+                var resultsDir = $"{BaseResultsDir}/Editor-{behaviorName}-{timeStr}";
+                Directory.CreateDirectory(resultsDir);
+
+                // run scripts
                 EnsureTrainingScriptsExist();
-                var scriptPath = $"{DirInProject}/{EditorTrainingScript}";
-                var configPath = $"{DirInProject}/{EditorTrainingConfig}";
+                var scriptPath = $"{TrainingUtilsDir}/{EditorTrainingScript}";
+                var configPath = $"{TrainingUtilsDir}/{EditorTrainingConfig}";
                 
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\"\"";
+                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\" \"{resultsDir}\"\"";
                 Process.Start(startInfo);
                 
                 WaitForTrainerAndPlay();
@@ -53,22 +65,29 @@ namespace RealmAI {
         private static void TrainWithBuild() {
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
                 var buildPath = EditorUtility.SaveFilePanel("Choose Location of Built Game", "", DefaultTrainingBuildName, "exe");
-                var buildName = Path.GetFileNameWithoutExtension(buildPath);
                 if (string.IsNullOrEmpty(buildPath))
                     return;
+
+                var behaviorName = FindBehaviorName();
                 
                 Debug.Log("Build started...");
                 BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, buildPath, BuildTarget.StandaloneWindows, BuildOptions.None);
 
                 Debug.Log("Build for training completed, starting training process...");
-                
+
+                // create results directory
+                var timeStr = DateTime.Now.ToString(DateTimeFormat);
+                var resultsDir = $"{BaseResultsDir}/Build-{behaviorName}-{timeStr}";
+                Directory.CreateDirectory(resultsDir);
+
+                // run scripts
                 EnsureTrainingScriptsExist();
-                var scriptPath = $"{DirInProject}/{BuildTrainingScript}";
-                var configPath = $"{DirInProject}/{BuildTrainingConfig}";
+                var scriptPath = $"{TrainingUtilsDir}/{BuildTrainingScript}";
+                var configPath = $"{TrainingUtilsDir}/{BuildTrainingConfig}";
                 
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\" \"{buildPath}\" \"{buildName}\"\"";
+                startInfo.Arguments = $"/K \"\"{scriptPath}\" \"{configPath}\" \"{buildPath}\" \"{behaviorName}\" \"{resultsDir}\"\"";
 
                 Process.Start(startInfo);
             } else {
@@ -77,26 +96,39 @@ namespace RealmAI {
         }
 
         private static void EnsureTrainingScriptsExist() {
-            Directory.CreateDirectory(DirInProject);
-            if (!File.Exists($"{DirInProject}/{EditorTrainingScript}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingScript}", $"{DirInProject}/{EditorTrainingScript}");
-                Debug.Log($"Editor training script has been created at: {DirInProject}/{EditorTrainingScript}");
+            Directory.CreateDirectory(TrainingUtilsDir);
+            if (!File.Exists($"{TrainingUtilsDir}/{EditorTrainingScript}")) {
+                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingScript}", $"{TrainingUtilsDir}/{EditorTrainingScript}");
+                Debug.Log($"Editor training script has been created at: {TrainingUtilsDir}/{EditorTrainingScript}");
             }
 
-            if (!File.Exists($"{DirInProject}/{EditorTrainingConfig}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingConfig}", $"{DirInProject}/{EditorTrainingConfig}");
-                Debug.Log($"Editor training config has been created at: {DirInProject}/{EditorTrainingConfig}");
+            if (!File.Exists($"{TrainingUtilsDir}/{EditorTrainingConfig}")) {
+                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingConfig}", $"{TrainingUtilsDir}/{EditorTrainingConfig}");
+                Debug.Log($"Editor training config has been created at: {TrainingUtilsDir}/{EditorTrainingConfig}");
             }
 
-            if (!File.Exists($"{DirInProject}/{BuildTrainingScript}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingScript}", $"{DirInProject}/{BuildTrainingScript}");
-                Debug.Log($"Build training script has been created at: {DirInProject}/{BuildTrainingScript}");
+            if (!File.Exists($"{TrainingUtilsDir}/{BuildTrainingScript}")) {
+                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingScript}", $"{TrainingUtilsDir}/{BuildTrainingScript}");
+                Debug.Log($"Build training script has been created at: {TrainingUtilsDir}/{BuildTrainingScript}");
             }
 
-            if (!File.Exists($"{DirInProject}/{BuildTrainingConfig}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingConfig}", $"{DirInProject}/{BuildTrainingConfig}");
-                Debug.Log($"Build training config has been created at: {DirInProject}/{BuildTrainingConfig}");
+            if (!File.Exists($"{TrainingUtilsDir}/{BuildTrainingConfig}")) {
+                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingConfig}", $"{TrainingUtilsDir}/{BuildTrainingConfig}");
+                Debug.Log($"Build training config has been created at: {TrainingUtilsDir}/{BuildTrainingConfig}");
             }
+        }
+
+        private static string FindBehaviorName() {
+            // TODO we can probably get this from somewhere else
+            foreach (var sceneRootObject in SceneManager.GetActiveScene().GetRootGameObjects()) {
+                foreach (var behaviorParameter in sceneRootObject.GetComponentsInChildren<BehaviorParameters>()) {
+                    if (!string.IsNullOrEmpty(behaviorParameter.BehaviorName)) {
+                        return behaviorParameter.BehaviorName;
+                    }
+                }
+            }
+
+            return "Player";
         }
     }
 }

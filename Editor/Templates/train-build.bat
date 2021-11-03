@@ -1,1 +1,1 @@
-realm-tune --config-path=%1 --env-path=%2 --behavior-name=%3
+cd %4 && realm-tune --config-path=%1 --env-path=%2 --behavior-name=%3

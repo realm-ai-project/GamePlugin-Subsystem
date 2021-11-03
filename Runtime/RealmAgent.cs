@@ -106,9 +106,9 @@ namespace RealmAI {
 	        // TODO see if we want to save data elsewhere when training in editor...
 	        if (string.IsNullOrEmpty(saveDirectory)) {
 		        if (Application.isEditor) {
-			        saveDirectory = $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI";
+			        saveDirectory = $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/Editor";
 		        } else {
-			        saveDirectory = $"{Application.dataPath}/RealmAI";
+			        saveDirectory = $"{Application.dataPath}/RealmAI/Results/Build";
 		        }
 	        }
 
