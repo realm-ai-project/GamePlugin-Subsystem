@@ -10,7 +10,7 @@ namespace RealmAI {
         [SerializeField] private RealmRecorder _realmRecorder = default;
         [SerializeField] private UnityEvent _episodeReset = default;
         [SerializeField] private FloatDelegate _rewardFunction = default;
-        [SerializeField] private BoolDelegate _gameoverFunction = default;
+        [SerializeField] private BoolDelegate _gameOverFunction = default;
         
         private string _saveDirectory = "";
         public string SaveDirectory {
@@ -41,8 +41,8 @@ namespace RealmAI {
             _episodeDuration += Time.deltaTime;
             _realmOwl.RecordDuration(_episodeDuration);
             
-            if (_gameoverFunction != null) {
-                if (_gameoverFunction.Invoke()) {
+            if (_gameOverFunction != null) {
+                if (_gameOverFunction.Invoke()) {
                     EndEpisode();
                 }
             }
