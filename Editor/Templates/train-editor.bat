@@ -1,1 +1,2 @@
-cd %2 && mlagents-learn %1 --run-id="Editor" --force
+cd RealmAI/Python-GUI
+python main.py --behavior-name %1 --mlagents

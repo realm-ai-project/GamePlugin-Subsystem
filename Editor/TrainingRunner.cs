@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
+using System.Text;
 using Unity.MLAgents.Policies;
 using UnityEngine;
 using UnityEditor;
@@ -24,14 +24,14 @@ namespace RealmAI {
 
         private const string DateTimeFormat = "yyyy-MM-dd_hh-mm-ss";
         
-        // TODO create training runner files on initialize so they can be edited by user
+        private static StringBuilder _sb = new StringBuilder();
         // TODO add for mac and linux
-        // TODO allow configuration for: output folder, run id, custom config file, etc.?
         [MenuItem("Realm AI/Train in Editor")]
         private static void TrainInEditor() {
+            // TODO hide command line window
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
                 // create results directory
-                var behaviorName = FindBehaviorName();
+                var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
                 var timeStr = DateTime.Now.ToString(DateTimeFormat);
                 var resultsDir = $"{BaseResultsDir}/Editor-{behaviorName}-{timeStr}";
                 Directory.CreateDirectory(resultsDir);
@@ -40,30 +40,24 @@ namespace RealmAI {
                 EnsureTrainingScriptsExist();
                 var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
                 var scriptPath = $"{TrainingUtilsDir}/{EditorTrainingScript}";
-                var configPath = $"{TrainingUtilsDir}/{EditorTrainingConfig}";
-                
+
+                // run training process
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{configPath}\" \"{resultsDir}\"\"";
-                print(startInfo.Arguments);
-                Process.Start(startInfo);
-                
-                WaitForTrainerAndPlay();
+                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{behaviorName}\"\"";
+                using (var process = Process.Start(startInfo)) {
+                    if (process == null) {
+                        Debug.LogError("Failed to start training process");
+                        return;
+                    }
+                }
+
+                RealmEditorTrainingWaitWindow.ShowWindow();
             } else {
                 Debug.Log("Train in Editor: Stop playing in the editor and try again.");
             }
         }
 
-         
-        private static async void WaitForTrainerAndPlay ()
-        {
-            // TODO ideally this would wait until trainer is ready before playing, not just a set duration.
-            await Task.Delay(3000);
-            EditorApplication.EnterPlaymode();
-            Debug.Log("Started processes for training in editor.");
-        }
-        
-        
         [MenuItem("Realm AI/Build and Train")]
         private static void TrainWithBuild() {
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
@@ -71,7 +65,7 @@ namespace RealmAI {
                 if (string.IsNullOrEmpty(buildPath))
                     return;
 
-                var behaviorName = FindBehaviorName();
+                var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
                 
                 Debug.Log("Build started...");
                 BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, buildPath, BuildTarget.StandaloneWindows, BuildOptions.None);
@@ -91,7 +85,7 @@ namespace RealmAI {
                 
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{configPath}\" \"{buildPath}\" \"{behaviorName}\" \"{resultsDir}\"\"";
+                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{behaviorName}\" \"{buildPath}\"\"";
 
                 Process.Start(startInfo);
             } else {
@@ -127,8 +121,29 @@ namespace RealmAI {
             }
         }
 
-        private static string FindBehaviorName() {
-            // TODO we can probably get this from somewhere else
+        private static string GetBehaviorName() {
+            var settings = RealmEditorSettings.LoadSettings();
+            if (settings == null || string.IsNullOrEmpty(settings.PlayerPrefabGuid)) {
+                Debug.LogWarning("The player prefab has not been configured. Set it up in the Realm AI configuration window first!");
+                return null;
+            }
+
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(settings.PlayerPrefabGuid));
+            if (prefab == null) {
+                Debug.LogWarning("The player prefab configuration seems to be broken.");
+                return null;
+            }
+
+            var behaviorParameters = prefab.GetComponentInChildren<BehaviorParameters>();
+            if (behaviorParameters == null) {
+                Debug.LogWarning("The player prefab has not been set up with the Realm AI Module. Use the Realm AI configuration window to set this up.");
+                return null;
+            }
+
+            return behaviorParameters.BehaviorName;
+        }
+
+        private static string FindBehaviorNameFromScene() {
             foreach (var sceneRootObject in SceneManager.GetActiveScene().GetRootGameObjects()) {
                 foreach (var behaviorParameter in sceneRootObject.GetComponentsInChildren<BehaviorParameters>()) {
                     if (!string.IsNullOrEmpty(behaviorParameter.BehaviorName)) {

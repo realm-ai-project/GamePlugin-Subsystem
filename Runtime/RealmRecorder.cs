@@ -177,11 +177,6 @@ namespace RealmAI {
             } finally {
                 _recordingProcess.Dispose();
             }
-
-            var outfile = $"{_recordingOutPath}-temp.{RecordingExtension}";
-            if (File.Exists(outfile)) {
-                File.Delete(outfile);
-            }
         }
         
         private void ModifyMetadata() {

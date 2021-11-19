@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Unity.MLAgents;
 using UnityEngine;
 using UnityEngine.Events;
@@ -22,7 +21,6 @@ namespace RealmAI {
 		        return _saveDirectory;
 	        }
         }
-
 
         private float _lastReward = 0;
         private float _episodeDuration = 0;
@@ -60,7 +58,6 @@ namespace RealmAI {
         }
 
         private string GetSaveDirectory() {
-	        var saveDirectory = "";
 	        // get directory
 	        if (!Application.isEditor) {
 		        var args = System.Environment.GetCommandLineArgs();
@@ -93,26 +90,28 @@ namespace RealmAI {
 
 		        if (!string.IsNullOrEmpty(customPathArg)) {
 			        // custom path is provided
-			        saveDirectory = customPathArg;
-		        } else if (!string.IsNullOrEmpty(logFileArg)) {
+			        return customPathArg;
+		        }
+		        
+		        if (!string.IsNullOrEmpty(logFileArg)) {
 			        // no custom path provided, try save to the same directory as ML-Agents 
 			        var directory = Path.GetDirectoryName(logFileArg);
 			        if (directory != null && directory.EndsWith("run_logs")) {
-				        saveDirectory = $"{directory}/../RealmAI";
+				        return $"{directory}/../RealmAI";
 			        }
 		        }
 	        }
-
-	        // TODO see if we want to save data elsewhere when training in editor...
-	        if (string.IsNullOrEmpty(saveDirectory)) {
-		        if (Application.isEditor) {
-			        saveDirectory = $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/Editor";
-		        } else {
-			        saveDirectory = $"{Application.dataPath}/RealmAI/Results/Build";
-		        }
-	        }
-
-	        return saveDirectory;
+	        
+#if UNITY_EDITOR
+	        
+			// when training in the editor, the the training runner should have identified a directory for us:
+			// TODO very temp solution for getting save folder from python gui
+			var hackyTempFilePath = $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Python-GUI/last_run.txt";
+			if (File.Exists(hackyTempFilePath)) {
+				return File.ReadAllText(hackyTempFilePath);
+			}
+#endif
+	        return $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/default";
         }
     }
 }
