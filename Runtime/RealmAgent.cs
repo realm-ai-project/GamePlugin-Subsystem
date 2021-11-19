@@ -108,7 +108,7 @@ namespace RealmAI {
 			// TODO very temp solution for getting save folder from python gui
 			var hackyTempFilePath = $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Python-GUI/last_run.txt";
 			if (File.Exists(hackyTempFilePath)) {
-				return File.ReadAllText(hackyTempFilePath);
+				return $"{File.ReadAllText(hackyTempFilePath)}/RealmAI";
 			}
 #endif
 	        return $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/default";

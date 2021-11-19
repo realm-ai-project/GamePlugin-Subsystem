@@ -24,6 +24,9 @@ namespace RealmAI {
         private Process _recordingProcess = null;
         
         public void StartEpisode(int episodeNumber, int totalStepsCompleted) {
+            if (!gameObject.isActiveAndEnabled)
+                return;
+            
             _episodeNumber = episodeNumber;
             _totalStepsCompleted = totalStepsCompleted;
             _currentReward = 0;

@@ -30,11 +30,7 @@ namespace RealmAI {
         private static void TrainInEditor() {
             // TODO hide command line window
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
-                // create results directory
                 var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
-                var timeStr = DateTime.Now.ToString(DateTimeFormat);
-                var resultsDir = $"{BaseResultsDir}/Editor-{behaviorName}-{timeStr}";
-                Directory.CreateDirectory(resultsDir);
 
                 // run scripts
                 EnsureTrainingScriptsExist();
@@ -71,11 +67,6 @@ namespace RealmAI {
                 BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, buildPath, BuildTarget.StandaloneWindows, BuildOptions.None);
 
                 Debug.Log("Build for training completed, starting training process...");
-
-                // create results directory
-                var timeStr = DateTime.Now.ToString(DateTimeFormat);
-                var resultsDir = $"{BaseResultsDir}/Build-{behaviorName}-{timeStr}";
-                Directory.CreateDirectory(resultsDir);
 
                 // run scripts
                 EnsureTrainingScriptsExist();

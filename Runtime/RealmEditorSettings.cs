@@ -7,7 +7,8 @@ namespace RealmAI {
 #if UNITY_EDITOR
     [Serializable]
     public class RealmEditorSettings {
-        private static string ConfigStatePath => $"{Path.GetDirectoryName(Application.dataPath)}/ProjectSettings/com.realmai.unity/RealmAI.json";
+        private static string ConfigStateDirectory => $"{Path.GetDirectoryName(Application.dataPath)}/ProjectSettings/com.realmai.unity";
+        private static string ConfigStatePath => $"{ConfigStateDirectory}/RealmAI.json";
 
         public string PlayerPrefabGuid = "";
 
@@ -28,6 +29,7 @@ namespace RealmAI {
 
         public static void SaveSettings(RealmEditorSettings settings) {
             try {
+                Directory.CreateDirectory(ConfigStateDirectory);
                 var json = EditorJsonUtility.ToJson(settings);
                 File.WriteAllText(ConfigStatePath, json);
             } catch (Exception e) {
