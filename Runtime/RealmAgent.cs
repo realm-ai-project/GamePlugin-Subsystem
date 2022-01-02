@@ -103,12 +103,11 @@ namespace RealmAI {
 	        }
 	        
 #if UNITY_EDITOR
-	        
-			// when training in the editor, the the training runner should have identified a directory for us:
+	        // when training in the editor, the training runner should have identified a directory for us:
 			// TODO very temp solution for getting save folder from python gui
-			var hackyTempFilePath = $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Python-GUI/last_run.txt";
-			if (File.Exists(hackyTempFilePath)) {
-				return $"{File.ReadAllText(hackyTempFilePath)}/RealmAI";
+			var settings = RealmEditorSettings.LoadSettings();
+			if (!string.IsNullOrEmpty(settings.CurrentResultsDirectory)) {
+				return $"{settings.CurrentResultsDirectory}/RealmAI";
 			}
 #endif
 	        return $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/default";

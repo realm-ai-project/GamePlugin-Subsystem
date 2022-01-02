@@ -9,22 +9,35 @@ using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
 namespace RealmAI {
+    [InitializeOnLoadAttribute]
     public class TrainingRunner : MonoBehaviour {
+        private static string FilesInProjectDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI";
         private static string TrainingUtilsDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Training";
         private static string BaseResultsDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results";
+        private static string DashboardPath => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Dashboard/index.html";
+        private static string DashboardApiDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Dashboard/api";
         private const string TemplatesPath = "Packages/com.realmai.unity/Editor/Templates";
-        
+
         private const string EnvSetupScript = "env-setup.bat";
         private const string EditorTrainingScript = "train-editor.bat";
         private const string BuildTrainingScript = "train-build.bat";
-        private const string EditorTrainingConfig = "train-editor-config.yaml";
-        private const string BuildTrainingConfig = "train-build-config.yaml";
 
         private const string DefaultTrainingBuildName = "TrainingBuild";
 
-        private const string DateTimeFormat = "yyyy-MM-dd_hh-mm-ss";
         
-        private static StringBuilder _sb = new StringBuilder();
+        private const string DashboardApiScript = "dashboard-api.bat";
+        
+        private const string DateTimeFormat = "yyyy-MM-dd_hh-mm-ss";
+
+
+        static TrainingRunner(){
+            if (!EditorApplication.isPlayingOrWillChangePlaymode) {
+                SaveCurrentResultsDirectory("");
+            }
+            
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+        
         // TODO add for mac and linux
         [MenuItem("Realm AI/Train in Editor")]
         private static void TrainInEditor() {
@@ -33,14 +46,18 @@ namespace RealmAI {
                 var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
 
                 // run scripts
-                EnsureTrainingScriptsExist();
+                EnsureTemplatesExist();
                 var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
                 var scriptPath = $"{TrainingUtilsDir}/{EditorTrainingScript}";
+                var runId = $"{behaviorName}_{DateTime.Now.ToString(DateTimeFormat)}";
+                var resultsDir = $"{BaseResultsDir}/Editor";
 
-                // run training process
+                // TODO: feels weird? saving this path so we can access it when training in editor
+                SaveCurrentResultsDirectory($"{resultsDir}/{runId}");
+                
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{behaviorName}\"\"";
+                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId}\"";
                 using (var process = Process.Start(startInfo)) {
                     if (process == null) {
                         Debug.LogError("Failed to start training process");
@@ -63,52 +80,28 @@ namespace RealmAI {
 
                 var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
                 
-                Debug.Log("Build started...");
+                Debug.Log("Build s...");
                 BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, buildPath, BuildTarget.StandaloneWindows, BuildOptions.None);
 
                 Debug.Log("Build for training completed, starting training process...");
 
                 // run scripts
-                EnsureTrainingScriptsExist();
+                EnsureTemplatesExist();
                 var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
                 var scriptPath = $"{TrainingUtilsDir}/{BuildTrainingScript}";
-                var configPath = $"{TrainingUtilsDir}/{BuildTrainingConfig}";
-                
+                var runId = $"{behaviorName}_{DateTime.Now.ToString(DateTimeFormat)}";
+                var resultsDir = $"{BaseResultsDir}/Build";
+
+                // TODO: don't need this for build
+                SaveCurrentResultsDirectory($"{resultsDir}/{runId}");
+
                 ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{behaviorName}\" \"{buildPath}\"\"";
+                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId} \"{buildPath}\"\"";
 
                 Process.Start(startInfo);
             } else {
                 Debug.Log("Build and Train: Stop playing in the editor and try again.");
-            }
-        }
-
-        private static void EnsureTrainingScriptsExist() {
-            Directory.CreateDirectory(TrainingUtilsDir);
-            if (!File.Exists($"{TrainingUtilsDir}/{EnvSetupScript}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EnvSetupScript}", $"{TrainingUtilsDir}/{EnvSetupScript}");
-                Debug.Log($"Environment setup script has been created at: {TrainingUtilsDir}/{EnvSetupScript}");
-            }
-            
-            if (!File.Exists($"{TrainingUtilsDir}/{EditorTrainingScript}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingScript}", $"{TrainingUtilsDir}/{EditorTrainingScript}");
-                Debug.Log($"Editor training script has been created at: {TrainingUtilsDir}/{EditorTrainingScript}");
-            }
-
-            if (!File.Exists($"{TrainingUtilsDir}/{EditorTrainingConfig}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{EditorTrainingConfig}", $"{TrainingUtilsDir}/{EditorTrainingConfig}");
-                Debug.Log($"Editor training config has been created at: {TrainingUtilsDir}/{EditorTrainingConfig}");
-            }
-
-            if (!File.Exists($"{TrainingUtilsDir}/{BuildTrainingScript}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingScript}", $"{TrainingUtilsDir}/{BuildTrainingScript}");
-                Debug.Log($"Build training script has been created at: {TrainingUtilsDir}/{BuildTrainingScript}");
-            }
-
-            if (!File.Exists($"{TrainingUtilsDir}/{BuildTrainingConfig}")) {
-                FileUtil.CopyFileOrDirectory($"{TemplatesPath}/{BuildTrainingConfig}", $"{TrainingUtilsDir}/{BuildTrainingConfig}");
-                Debug.Log($"Build training config has been created at: {TrainingUtilsDir}/{BuildTrainingConfig}");
             }
         }
 
@@ -144,6 +137,70 @@ namespace RealmAI {
             }
 
             return "Player";
+        }
+
+        private static void SaveCurrentResultsDirectory(string directory) {
+            var settings = RealmEditorSettings.LoadSettings();
+            settings.CurrentResultsDirectory = directory;
+            RealmEditorSettings.SaveSettings(settings);
+        }
+
+        private static void OnPlayModeStateChanged(PlayModeStateChange state) {
+            if (state == PlayModeStateChange.ExitingPlayMode) {
+                SaveCurrentResultsDirectory("");
+            }
+        }
+        
+
+        [MenuItem("Realm AI/Open Dashboard")]
+        private static void OpenDashboard() {
+            EnsureTemplatesExist();
+            
+            var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
+            var scriptPath = $"{TrainingUtilsDir}/{DashboardApiScript}";
+            ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
+            startInfo.WindowStyle = ProcessWindowStyle.Normal;
+            startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{DashboardApiDir}\"\"";
+
+            Process.Start(startInfo);
+            
+            Application.OpenURL($"file://{DashboardPath}");
+            Debug.Log("Starting dashboard...");
+        }
+
+        private static void EnsureTemplatesExist() {
+            Directory.CreateDirectory(FilesInProjectDir);
+            var sourceDir = new DirectoryInfo(Path.GetFullPath(TemplatesPath));
+            var targetDir = new DirectoryInfo(FilesInProjectDir);
+            CopyDirectoryRecursive(sourceDir, targetDir);
+        }
+        
+        private static void CopyDirectoryRecursive(DirectoryInfo source, DirectoryInfo target) {
+            // adapted from https://docs.microsoft.com/en-us/dotnet/api/system.io.directoryinfo?redirectedfrom=MSDN&view=net-6.0
+            if (source.FullName.ToLower() == target.FullName.ToLower()) {
+                return;
+            }
+
+            // Check if the target directory exists, if not, create it.
+            if (Directory.Exists(target.FullName) == false) {
+                Directory.CreateDirectory(target.FullName);
+            }
+
+            // Copy each file into it's new directory.
+            foreach (FileInfo fi in source.GetFiles()) {
+                var dest = Path.Combine(target.ToString(), fi.Name);
+                if (!File.Exists(dest)) {
+                    Debug.Log($"Copying {target.FullName} to {fi.Name}");
+                    fi.CopyTo(dest);
+                }
+            }
+
+            // Copy each subdirectory using recursion.
+            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories()) {
+                DirectoryInfo nextTargetSubDir =
+                    target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyDirectoryRecursive(diSourceSubDir, nextTargetSubDir);
+            }
         }
     }
 }

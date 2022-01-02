@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using Unity.MLAgents.Sensors;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -10,6 +11,7 @@ namespace RealmAI {
         [SerializeField] private Vector2Int _videoResolution = new Vector2Int(480, 270);
         [SerializeField] private float _videosPerMillionSteps = 100;
         [SerializeField] private string _ffmpegPath = "c:\\ffmpeg\\bin\\ffmpeg.exe";
+        // [SerializeField] private GridSensorComponentWithSensorRef _gridSensor;
 
         private const string RecordingExtension = "webm";
         
@@ -24,7 +26,7 @@ namespace RealmAI {
         private Process _recordingProcess = null;
         
         public void StartEpisode(int episodeNumber, int totalStepsCompleted) {
-            if (!gameObject.isActiveAndEnabled)
+            if (!isActiveAndEnabled)
                 return;
             
             _episodeNumber = episodeNumber;
@@ -76,7 +78,7 @@ namespace RealmAI {
 
             return false;
         }
-        
+
         private void StartRecording() {
             var saveDirectory = $"{_realmAgent.SaveDirectory}/Videos";
             Directory.CreateDirectory(saveDirectory);
@@ -91,7 +93,7 @@ namespace RealmAI {
             }
 
             // frame rate
-            // TODO: determine appropriate framerate for recording when not training in editor (just try to track current framerate?)
+            // TODO: determine appropriate framerate for recording when training in editor (just try to track current framerate?)
             var framerate = Time.captureFramerate / Time.timeScale;
             if (framerate == 0) {
                 if (Application.targetFrameRate != -1) {
@@ -101,7 +103,6 @@ namespace RealmAI {
                 }
             }
 
-            
             // start ffmpeg process
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = true;
@@ -109,6 +110,7 @@ namespace RealmAI {
             startInfo.FileName = _ffmpegPath;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = $"-f rawvideo -pixel_format rgb24 -video_size {_videoResolution.x}x{_videoResolution.y} -framerate {framerate} -i pipe: -vf vflip -y \"{_recordingOutPath}-temp.{RecordingExtension}\"";
+            // startInfo.Arguments = $"-f image2pipe -framerate {framerate} -i pipe: -vf vflip -y \"{_recordingOutPath}-temp.{RecordingExtension}\"";
 
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardError = true; // ffmpeg outputs everything to std error    
@@ -140,6 +142,9 @@ namespace RealmAI {
 
             using (var stream = new MemoryStream()) {
                 var bytes = texture.GetRawTextureData();
+                // if (_gridSensor.Sensors != null && _gridSensor.Sensors.Length > 0) {
+                //     bytes = _gridSensor.Sensors[0].GetCompressedObservation();
+                // }
                 stream.Write(bytes, 0, bytes.Length);
 
                 Destroy(rt);

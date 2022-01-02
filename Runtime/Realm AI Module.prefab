@@ -47,9 +47,9 @@ MonoBehaviour:
   _realmAgent: {fileID: 4429466108806940741}
   _recordingCamera: {fileID: 6534901877959408365}
   _videoResolution: {x: 480, y: 270}
-  _videoFramerate: 30
   _videosPerMillionSteps: 100
   _ffmpegPath: c:\ffmpeg\bin\ffmpeg.exe
+  _gridSensor: {fileID: 0}
 --- !u!1 &3936234473448951908
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,7 +294,6 @@ MonoBehaviour:
   _filePrefix: data
   _storageFormat: 0
   _flushPeriod: 60
-  SaveDirectory: 
 --- !u!1 &8869980354377486000
 GameObject:
   m_ObjectHideFlags: 0
@@ -401,7 +400,7 @@ MonoBehaviour:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 
-  _gameoverFunction:
+  _gameOverFunction:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 

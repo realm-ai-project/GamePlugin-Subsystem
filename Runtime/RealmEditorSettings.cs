@@ -11,6 +11,7 @@ namespace RealmAI {
         private static string ConfigStatePath => $"{ConfigStateDirectory}/RealmAI.json";
 
         public string PlayerPrefabGuid = "";
+        public string CurrentResultsDirectory = "";
 
         public static RealmEditorSettings LoadSettings() {
             try {
