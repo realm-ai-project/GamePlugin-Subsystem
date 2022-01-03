@@ -7,9 +7,9 @@ namespace RealmAI {
     public class RealmAgent : Agent {
         [SerializeField] private RealmOwl _realmOwl = default;
         [SerializeField] private RealmRecorder _realmRecorder = default;
-        [SerializeField] private UnityEvent _episodeReset = default;
-        [SerializeField] private FloatDelegate _rewardFunction = default;
-        [SerializeField] private BoolDelegate _gameOverFunction = default;
+        [SerializeField] private SerializedAction _episodeReset = default;
+        [SerializeField] private SerializedFloatFunc _rewardFunction = default;
+        [SerializeField] private SerializedBoolFunc _gameOverFunction = default;
         
         private string _saveDirectory = "";
         public string SaveDirectory {
@@ -110,7 +110,7 @@ namespace RealmAI {
 				return $"{settings.CurrentResultsDirectory}/RealmAI";
 			}
 #endif
-	        return $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/default";
+	        return $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/misc";
         }
     }
 }

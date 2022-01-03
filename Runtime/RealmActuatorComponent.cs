@@ -11,8 +11,8 @@ namespace RealmAI {
     public class RealmContinuousActionSpec {
         public delegate float ContinuousHeuristicDelegate();
         // TODO can also make presets like joysticks/key presses, things that can drop-in and replace common inputs
-        public UnityEvent<float> Callback = default;
-        public FloatDelegate Heuristic = default;
+        public SerializedFloatAction Callback = default;
+        public SerializedFloatFunc Heuristic = default;
     }
 
     [Serializable]
@@ -20,8 +20,8 @@ namespace RealmAI {
         public delegate int DiscreteHeuristicDelegate();
 
         public int Branches = 2;
-        public UnityEvent<int> Callback = default; //TODO we can also do one callback per branch
-        public IntDelegate Heuristic = default;
+        public SerializedIntAction Callback = default; //TODO we can also do one callback per branch
+        public SerializedIntFunc Heuristic = default;
     }
 
     public class RealmActuatorComponent : ActuatorComponent {

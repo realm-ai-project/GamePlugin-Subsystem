@@ -7,7 +7,7 @@ using UnityEngine;
 namespace RealmAI {
     public class RealmSensorComponent : SensorComponent {
         [SerializeField] private RealmOwl _realmOwl = default;
-        [SerializeField] private Vector2Delegate _positionFunction = default;
+        [SerializeField] private SerializedVector2Delegate _positionFunction = default;
         [SerializeField] private float _positionRecordInterval = 0.5f;
 
         public override ISensor[] CreateSensors()
@@ -31,10 +31,10 @@ namespace RealmAI {
     public class RealmSensor : ISensor
     {
         private RealmOwl _realmOwl = default;
-        private Vector2Delegate _positionFunction = default;
+        private SerializedVector2Delegate _positionFunction = default;
         private List<float> _observations = new List<float>();
         
-        public RealmSensor(RealmOwl realmOwl, Vector2Delegate positionFunction) {
+        public RealmSensor(RealmOwl realmOwl, SerializedVector2Delegate positionFunction) {
             _realmOwl = realmOwl;
             _positionFunction = positionFunction;
         }
