@@ -71,7 +71,7 @@ namespace RealmAI {
 				try {
 					var path = $"{saveDirectory}/{_filePrefix}-{count}.{fileExtension}";
 					var fileExists = File.Exists(path);
-					var fileStream = File.Open(path, FileMode.Create, FileAccess.Write);
+					var fileStream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
 					_fileWriter.Initialize(fileStream);
 					if (fileExists) {
 						Debug.Log($"Overwriting existing data on {path}");
