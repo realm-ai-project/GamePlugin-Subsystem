@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Unity.MLAgents.Actuators;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace RealmAI {
 

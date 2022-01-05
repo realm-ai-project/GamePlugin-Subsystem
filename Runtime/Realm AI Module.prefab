@@ -48,8 +48,7 @@ MonoBehaviour:
   _recordingCamera: {fileID: 6534901877959408365}
   _videoResolution: {x: 480, y: 270}
   _videosPerMillionSteps: 100
-  _ffmpegPath: c:\ffmpeg\bin\ffmpeg.exe
-  _gridSensor: {fileID: 0}
+  _ffmpegPath: 
 --- !u!1 &3936234473448951908
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,9 +392,10 @@ MonoBehaviour:
   MaxStep: 0
   _realmOwl: {fileID: 8072616143281511398}
   _realmRecorder: {fileID: 4481804292444716366}
-  _episodeReset:
-    m_PersistentCalls:
-      m_Calls: []
+  _resetFunction:
+    _target: {fileID: 0}
+    _script: {fileID: 0}
+    _methodName: 
   _rewardFunction:
     _target: {fileID: 0}
     _script: {fileID: 0}

@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using Unity.MLAgents.Policies;
 using UnityEngine;
 using UnityEditor;
@@ -37,6 +36,17 @@ namespace RealmAI {
             
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
+
+        [MenuItem("Realm AI/Open Results Directory")]
+        private static void OpenResultsDirectory() {
+            var startInfo = new ProcessStartInfo(BaseResultsDir);
+            using (var process = Process.Start(startInfo)) {
+                if (process == null) {
+                    Debug.LogError($"Failed to open {BaseResultsDir}.");
+                    return;
+                }
+            }
+        }
         
         // TODO add for mac and linux
         [MenuItem("Realm AI/Train in Editor")]
@@ -55,7 +65,7 @@ namespace RealmAI {
                 // TODO: feels weird? saving this path so we can access it when training in editor
                 SaveCurrentResultsDirectory($"{resultsDir}/{runId}");
                 
-                ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
+                var startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
                 startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId}\"";
                 using (var process = Process.Start(startInfo)) {
@@ -95,7 +105,7 @@ namespace RealmAI {
                 // TODO: don't need this for build
                 SaveCurrentResultsDirectory($"{resultsDir}/{runId}");
 
-                ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
+                var startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
                 startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId} \"{buildPath}\"\"";
 
@@ -158,7 +168,7 @@ namespace RealmAI {
             
             var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
             var scriptPath = $"{TrainingUtilsDir}/{DashboardApiScript}";
-            ProcessStartInfo startInfo = new ProcessStartInfo("cmd");
+            var startInfo = new ProcessStartInfo("cmd");
             startInfo.WindowStyle = ProcessWindowStyle.Normal;
             startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{DashboardApiDir}\"\"";
 

@@ -10,7 +10,7 @@ namespace RealmAI {
         [SerializeField] private Camera _recordingCamera = null;
         [SerializeField] private Vector2Int _videoResolution = new Vector2Int(480, 270);
         [SerializeField] private float _videosPerMillionSteps = 100;
-        [SerializeField] private string _ffmpegPath = "c:\\ffmpeg\\bin\\ffmpeg.exe";
+        [SerializeField] private string _ffmpegPath = "";
         // [SerializeField] private GridSensorComponentWithSensorRef _gridSensor;
 
         private const string RecordingExtension = "webm";

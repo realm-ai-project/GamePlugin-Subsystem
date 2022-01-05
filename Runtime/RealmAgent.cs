@@ -1,13 +1,12 @@
 ﻿using System.IO;
 using Unity.MLAgents;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace RealmAI {
     public class RealmAgent : Agent {
         [SerializeField] private RealmOwl _realmOwl = default;
         [SerializeField] private RealmRecorder _realmRecorder = default;
-        [SerializeField] private SerializedAction _episodeReset = default;
+        [SerializeField] private SerializedAction _resetFunction = default;
         [SerializeField] private SerializedFloatFunc _rewardFunction = default;
         [SerializeField] private SerializedBoolFunc _gameOverFunction = default;
         
@@ -31,7 +30,7 @@ namespace RealmAI {
             _episodeDuration = 0;
             _realmOwl.StartNewEpisode(CompletedEpisodes);
             _realmRecorder.StartEpisode(CompletedEpisodes, Academy.Instance.TotalStepCount);
-            _episodeReset.Invoke();
+            _resetFunction.Invoke();
         }
 
         private void Update() {
