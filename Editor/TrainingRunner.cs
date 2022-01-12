@@ -17,17 +17,23 @@ namespace RealmAI {
         private static string DashboardApiDir => Path.Combine(FilesInProjectDir, "Dashboard", "api");
         private static string TemplatesPath => Path.Combine("Packages", "com.realmai.unity", "Editor", "Templates");
 
-        private const string EnvSetupScript = "env-setup.bat";
-        private const string EditorTrainingScript = "train-editor.bat";
-        private const string BuildTrainingScript = "train-build.bat";
-
+#if UNITY_EDITOR_WIN
+        private const string ScriptExt = "bat";
+        private const string ScriptProcess = "cmd";
+        private const string ScriptProcessArgsPreamble = "/K";
+#else
+        private const string ScriptExt = "sh";
+        private const string ScriptProcess = "sh";
+        private const string ScriptProcessArgsPreamble = "-c";
+#endif
+        
+        private static string EnvSetupScript => $"env-setup.{ScriptExt}";
+        private static string EditorTrainingScript => $"train-editor.{ScriptExt}";
+        private static string BuildTrainingScript => $"train-build.{ScriptExt}";
+        private static string DashboardApiScript => $"dashboard-api.{ScriptExt}";
+        
         private const string DefaultTrainingBuildName = "TrainingBuild";
-
-        
-        private const string DashboardApiScript = "dashboard-api.bat";
-        
         private const string DateTimeFormat = "yyyy-MM-dd_hh-mm-ss";
-
 
         static TrainingRunner(){
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
@@ -48,10 +54,8 @@ namespace RealmAI {
             }
         }
         
-        // TODO add for mac and linux
         [MenuItem("Realm AI/Train in Editor")]
         private static void TrainInEditor() {
-            // TODO hide command line window
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
                 var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
 
@@ -65,9 +69,12 @@ namespace RealmAI {
                 // TODO: feels weird? saving this path so we can access it when training in editor
                 SaveCurrentResultsDirectory(Path.Combine(resultsDir, runId));
                 
-                var startInfo = new ProcessStartInfo("cmd");
+                // var startInfo = new ProcessStartInfo(ScriptProcess);
+                // startInfo.WindowStyle = ProcessWindowStyle.Normal;
+                // startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId}\"";
+                var startInfo = new ProcessStartInfo(ScriptProcess);
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId}\"";
+                startInfo.Arguments = $"{ScriptProcessArgsPreamble} \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId}\"";
                 using (var process = Process.Start(startInfo)) {
                     if (process == null) {
                         Debug.LogError("Failed to start training process");
@@ -105,9 +112,9 @@ namespace RealmAI {
                 // TODO: don't need this for build
                 SaveCurrentResultsDirectory(Path.Combine(resultsDir, runId));
 
-                var startInfo = new ProcessStartInfo("cmd");
+                var startInfo = new ProcessStartInfo(ScriptProcess);
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
-                startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId} \"{buildPath}\"\"";
+                startInfo.Arguments = $"{ScriptProcessArgsPreamble} \"\"{envSetupPath}\" && \"{scriptPath}\" \"{resultsDir}\" {runId} \"{buildPath}\"\"";
 
                 Process.Start(startInfo);
             } else {
@@ -168,9 +175,9 @@ namespace RealmAI {
 
             var envSetupPath = Path.Combine(TrainingUtilsDir, EnvSetupScript);
             var scriptPath =  Path.Combine(TrainingUtilsDir, DashboardApiScript);
-            var startInfo = new ProcessStartInfo("cmd");
+            var startInfo = new ProcessStartInfo(ScriptProcess);
             startInfo.WindowStyle = ProcessWindowStyle.Normal;
-            startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{DashboardApiDir}\"\"";
+            startInfo.Arguments = $"{ScriptProcessArgsPreamble} \"\"{envSetupPath}\" && \"{scriptPath}\" \"{DashboardApiDir}\"\"";
 
             Process.Start(startInfo);
             
