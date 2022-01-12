@@ -10,12 +10,12 @@ using Debug = UnityEngine.Debug;
 namespace RealmAI {
     [InitializeOnLoadAttribute]
     public class TrainingRunner : MonoBehaviour {
-        private static string FilesInProjectDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI";
-        private static string TrainingUtilsDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Training";
-        private static string BaseResultsDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results";
-        private static string DashboardPath => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Dashboard/index.html";
-        private static string DashboardApiDir => $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Dashboard/api";
-        private const string TemplatesPath = "Packages/com.realmai.unity/Editor/Templates";
+        private static string FilesInProjectDir => Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", "RealmAI");
+        private static string TrainingUtilsDir => Path.Combine(FilesInProjectDir, "Training");
+        private static string BaseResultsDir =>  Path.Combine(FilesInProjectDir, "Results");
+        private static string DashboardPath => Path.Combine(FilesInProjectDir, "Dashboard", "index.html");
+        private static string DashboardApiDir => Path.Combine(FilesInProjectDir, "Dashboard", "api");
+        private static string TemplatesPath => Path.Combine("Packages", "com.realmai.unity", "Editor", "Templates");
 
         private const string EnvSetupScript = "env-setup.bat";
         private const string EditorTrainingScript = "train-editor.bat";
@@ -57,13 +57,13 @@ namespace RealmAI {
 
                 // run scripts
                 EnsureTemplatesExist();
-                var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
-                var scriptPath = $"{TrainingUtilsDir}/{EditorTrainingScript}";
+                var envSetupPath = Path.Combine(TrainingUtilsDir, EnvSetupScript);
+                var scriptPath = Path.Combine(TrainingUtilsDir, EditorTrainingScript);
                 var runId = $"{behaviorName}_{DateTime.Now.ToString(DateTimeFormat)}";
-                var resultsDir = $"{BaseResultsDir}/Editor";
+                var resultsDir = Path.Combine(BaseResultsDir, "Editor");
 
                 // TODO: feels weird? saving this path so we can access it when training in editor
-                SaveCurrentResultsDirectory($"{resultsDir}/{runId}");
+                SaveCurrentResultsDirectory(Path.Combine(resultsDir, runId));
                 
                 var startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
@@ -90,20 +90,20 @@ namespace RealmAI {
 
                 var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
                 
-                Debug.Log("Build s...");
+                Debug.Log("Build started...");
                 BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, buildPath, BuildTarget.StandaloneWindows, BuildOptions.None);
 
                 Debug.Log("Build for training completed, starting training process...");
 
                 // run scripts
                 EnsureTemplatesExist();
-                var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
-                var scriptPath = $"{TrainingUtilsDir}/{BuildTrainingScript}";
+                var envSetupPath = Path.Combine(TrainingUtilsDir, EnvSetupScript);
+                var scriptPath = Path.Combine(TrainingUtilsDir, BuildTrainingScript);
                 var runId = $"{behaviorName}_{DateTime.Now.ToString(DateTimeFormat)}";
-                var resultsDir = $"{BaseResultsDir}/Build";
+                var resultsDir = Path.Combine(BaseResultsDir, "Build");
 
                 // TODO: don't need this for build
-                SaveCurrentResultsDirectory($"{resultsDir}/{runId}");
+                SaveCurrentResultsDirectory(Path.Combine(resultsDir, runId));
 
                 var startInfo = new ProcessStartInfo("cmd");
                 startInfo.WindowStyle = ProcessWindowStyle.Normal;
@@ -165,9 +165,9 @@ namespace RealmAI {
         [MenuItem("Realm AI/Open Dashboard")]
         private static void OpenDashboard() {
             EnsureTemplatesExist();
-            
-            var envSetupPath = $"{TrainingUtilsDir}/{EnvSetupScript}";
-            var scriptPath = $"{TrainingUtilsDir}/{DashboardApiScript}";
+
+            var envSetupPath = Path.Combine(TrainingUtilsDir, EnvSetupScript);
+            var scriptPath =  Path.Combine(TrainingUtilsDir, DashboardApiScript);
             var startInfo = new ProcessStartInfo("cmd");
             startInfo.WindowStyle = ProcessWindowStyle.Normal;
             startInfo.Arguments = $"/K \"\"{envSetupPath}\" && \"{scriptPath}\" \"{DashboardApiDir}\"\"";

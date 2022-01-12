@@ -1,3 +1,4 @@
+using System.IO;
 using Unity.MLAgents;
 using Unity.MLAgents.Policies;
 using Unity.MLAgents.Sensors;
@@ -8,8 +9,7 @@ using UnityEngine;
 
 namespace RealmAI {
     public class RealmConfigurationWindow : EditorWindow {
-
-        private const string RealmAiModulePath = "Packages/com.realmai.unity/Runtime/Realm AI Module.prefab";
+        private static string RealmAiModulePath => Path.Combine("Packages", "com.realmai.unity", "Runtime", "Realm AI Module.prefab");
 
         private GameObject _playerPrefab = null;
         private GameObject _realmModuleRoot = null;

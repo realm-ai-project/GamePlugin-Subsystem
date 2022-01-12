@@ -5,14 +5,14 @@ using Newtonsoft.Json;
 
 namespace RealmAI {
 	
-		internal interface DataFileWriter {
+		internal interface IDataFileWriter {
 			void Initialize(Stream stream);
 			void WriteEpisode(int episodeNum, float duration, float reward, List<Vector2> positions);
 			void Flush();
 			void Close();
 		}
 		
-		internal  class BinaryDataFileWriter : DataFileWriter {
+		internal  class BinaryDataFileWriter : IDataFileWriter {
 			private BinaryWriter _writer = null;
 			
 			public void Initialize(Stream stream) {
@@ -49,7 +49,7 @@ namespace RealmAI {
 			}
 		}
 		
-		internal  class JsonDataFileWriter : DataFileWriter {
+		internal  class JsonDataFileWriter : IDataFileWriter {
 			private JsonTextWriter _writer = null;
 			
 			public void Initialize(Stream stream) {

@@ -7,8 +7,8 @@ namespace RealmAI {
 #if UNITY_EDITOR
     [Serializable]
     public class RealmEditorSettings {
-        private static string ConfigStateDirectory => $"{Path.GetDirectoryName(Application.dataPath)}/ProjectSettings/com.realmai.unity";
-        private static string ConfigStatePath => $"{ConfigStateDirectory}/RealmAI.json";
+        private static string ConfigStateDirectory => Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", "ProjectSettings", "com.realmai.unity");
+        private static string ConfigStatePath => Path.Combine(ConfigStateDirectory, "RealmAI.json");
 
         public string PlayerPrefabGuid = "";
         public string CurrentResultsDirectory = "";

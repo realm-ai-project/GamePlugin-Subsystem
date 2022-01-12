@@ -80,13 +80,13 @@ namespace RealmAI {
         }
 
         private void StartRecording() {
-            var saveDirectory = $"{_realmAgent.SaveDirectory}/Videos";
+            var saveDirectory = Path.Combine(_realmAgent.SaveDirectory, "Videos");
             Directory.CreateDirectory(saveDirectory);
             // TODO resolve filename conflicts across multiple environments
             long count = 0;
             var nameOk = false;
             while (!nameOk) {
-                _recordingOutPath = $"{saveDirectory}/{_totalStepsCompleted + count}";
+                _recordingOutPath = Path.Combine(saveDirectory, $"{_totalStepsCompleted + count}");
 
                 nameOk = !File.Exists($"{_recordingOutPath}.{RecordingExtension}") && !File.Exists($"{_recordingOutPath}-temp.{RecordingExtension}");
                 count++;

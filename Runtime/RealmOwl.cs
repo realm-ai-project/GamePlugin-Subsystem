@@ -20,7 +20,7 @@ namespace RealmAI {
 		private static int _instancesCount = 0;
 		private int _instanceId = 99999;	
 		
-		private DataFileWriter _fileWriter = null;
+		private IDataFileWriter _fileWriter = null;
 		private bool _firstEpisode = true;
 		private int _episodeNum = -1;
 		private float _duration = 0;
@@ -64,12 +64,12 @@ namespace RealmAI {
 			// TODO: handle relative path?
 			
 			// open file for writing
-			var saveDirectory = $"{_realmAgent.SaveDirectory}/Data";
+			var saveDirectory = Path.Combine(_realmAgent.SaveDirectory, "Data");
 			Directory.CreateDirectory(saveDirectory);
 			var count = _instanceId;
 			while (count < 1e5) {
 				try {
-					var path = $"{saveDirectory}/{_filePrefix}-{count}.{fileExtension}";
+					var path = Path.Combine(saveDirectory, $"{_filePrefix}-{count}.{fileExtension}");
 					var fileExists = File.Exists(path);
 					var fileStream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
 					_fileWriter.Initialize(fileStream);

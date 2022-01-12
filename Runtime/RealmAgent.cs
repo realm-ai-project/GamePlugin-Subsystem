@@ -91,25 +91,25 @@ namespace RealmAI {
 			        // custom path is provided
 			        return customPathArg;
 		        }
-		        
+
 		        if (!string.IsNullOrEmpty(logFileArg)) {
 			        // no custom path provided, try save to the same directory as ML-Agents 
 			        var directory = Path.GetDirectoryName(logFileArg);
 			        if (directory != null && directory.EndsWith("run_logs")) {
-				        return $"{directory}/../RealmAI";
+				        return Path.GetFullPath(Path.Combine(directory, "..", "RealmAI"));
 			        }
 		        }
 	        }
-	        
+
 #if UNITY_EDITOR
 	        // when training in the editor, the training runner should have identified a directory for us:
-			// TODO very temp solution for getting save folder from python gui
-			var settings = RealmEditorSettings.LoadSettings();
-			if (!string.IsNullOrEmpty(settings.CurrentResultsDirectory)) {
-				return $"{settings.CurrentResultsDirectory}/RealmAI";
-			}
+	        // TODO very temp solution for getting save folder from python gui
+	        var settings = RealmEditorSettings.LoadSettings();
+	        if (!string.IsNullOrEmpty(settings.CurrentResultsDirectory)) {
+		        return Path.Combine(settings.CurrentResultsDirectory, "RealmAI");
+	        }
 #endif
-	        return $"{Path.GetDirectoryName(Application.dataPath)}/RealmAI/Results/misc";
+	        return Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", "RealmAI", "Results", "misc");
         }
     }
 }
