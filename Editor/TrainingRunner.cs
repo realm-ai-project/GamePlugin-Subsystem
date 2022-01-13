@@ -43,17 +43,6 @@ namespace RealmAI {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
 
-        [MenuItem("Realm AI/Open Results Directory")]
-        private static void OpenResultsDirectory() {
-            var startInfo = new ProcessStartInfo(BaseResultsDir);
-            using (var process = Process.Start(startInfo)) {
-                if (process == null) {
-                    Debug.LogError($"Failed to open {BaseResultsDir}.");
-                    return;
-                }
-            }
-        }
-        
         [MenuItem("Realm AI/Train in Editor")]
         private static void TrainInEditor() {
             if (!EditorApplication.isPlayingOrWillChangePlaymode) {
@@ -168,6 +157,17 @@ namespace RealmAI {
             }
         }
         
+        [MenuItem("Realm AI/Open Results Directory")]
+        private static void OpenResultsDirectory() {
+            Directory.CreateDirectory(BaseResultsDir);
+            var startInfo = new ProcessStartInfo(BaseResultsDir);
+            using (var process = Process.Start(startInfo)) {
+                if (process == null) {
+                    Debug.LogError($"Failed to open {BaseResultsDir}.");
+                    return;
+                }
+            }
+        }
 
         [MenuItem("Realm AI/Open Dashboard")]
         private static void OpenDashboard() {
