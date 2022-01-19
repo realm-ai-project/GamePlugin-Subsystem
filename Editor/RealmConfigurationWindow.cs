@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Unity.MLAgents;
 using Unity.MLAgents.Policies;
@@ -14,6 +15,7 @@ namespace RealmAI {
         private GameObject _playerPrefab = null;
         private GameObject _realmModuleRoot = null;
 
+
         private Vector2 _scrollPos = Vector2.zero;
 
         [MenuItem("Realm AI/Open Configuration Window")]
@@ -22,8 +24,8 @@ namespace RealmAI {
         }
 
         private void LoadPlayerPrefabFromSettings() {
-            var settings = RealmEditorSettings.LoadSettings();
-            if (settings != null && !string.IsNullOrEmpty(settings.PlayerPrefabGuid)) {
+            var settings = RealmEditorSettings.LoadProjectSettings();
+            if (!string.IsNullOrEmpty(settings.PlayerPrefabGuid)) {
                 _playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(settings.PlayerPrefabGuid));
             } else {
                 _playerPrefab = null;
@@ -31,7 +33,7 @@ namespace RealmAI {
         }
 
         private void SavePlayerPrefabToSettings() {
-            var settings = RealmEditorSettings.LoadSettings() ?? new RealmEditorSettings();
+            var settings = RealmEditorSettings.LoadProjectSettings();
 
             if (_playerPrefab != null && AssetDatabase.TryGetGUIDAndLocalFileIdentifier(_playerPrefab, out var guid, out long localId)) {
                 settings.PlayerPrefabGuid = guid;
@@ -39,11 +41,10 @@ namespace RealmAI {
                 settings.PlayerPrefabGuid = "";
             }
 
-            RealmEditorSettings.SaveSettings(settings);
+            RealmEditorSettings.SaveProjectSettings(settings);
         }
 
         private void Awake() {
-            // TODO does this work on assembly reload?
             LoadPlayerPrefabFromSettings();
         }
 
@@ -56,6 +57,7 @@ namespace RealmAI {
                 EditorGUILayout.EndScrollView();
             }
 
+            ConfigureUserSettings();
         }
 
         private void InstallRealmModule() {
@@ -253,7 +255,35 @@ namespace RealmAI {
             }
             EditorGUI.indentLevel--;
         }
+        
+        private void ConfigureUserSettings() {
+            HLine();
 
+            var userSettings = RealmEditorSettings.LoadUserSettings();
+
+            var userSettingsChanged = false;
+            var spaceBetweenProperties = 8;
+            GUILayout.Label("User Settings", EditorStyles.largeLabel);
+            EditorGUI.indentLevel++;
+            {
+                EditorGUILayout.LabelField("Environment Setup Command", EditorStyles.boldLabel);
+                var envSetupCommand = EditorGUILayout.TextField(userSettings.EnvSetupCommand);
+                EditorGUILayout.HelpBox("Optionally, provide command(s) to run to setup the current environment " +
+                                        "before running any of the training processes. For example, add a command to activate your " +
+                                        "Python environment here.", MessageType.None);
+                if (envSetupCommand != userSettings.EnvSetupCommand) {
+                    userSettingsChanged = true;
+                    userSettings.EnvSetupCommand = envSetupCommand;
+                }
+                EditorGUILayout.Space(spaceBetweenProperties);
+            }
+            EditorGUI.indentLevel--;
+
+            if (userSettingsChanged) {
+                RealmEditorSettings.SaveUserSettings(userSettings);
+            }
+        }
+        
         private void HLine() {
             // draw a horizontal line with slight spacing above and below
             var horizontalLine = new GUIStyle();

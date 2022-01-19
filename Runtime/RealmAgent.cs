@@ -104,7 +104,7 @@ namespace RealmAI {
 #if UNITY_EDITOR
 	        // when training in the editor, the training runner should have identified a directory for us:
 	        // TODO very temp solution for getting save folder from python gui
-	        var settings = RealmEditorSettings.LoadSettings();
+	        var settings = RealmEditorSettings.LoadUserSettings();
 	        if (!string.IsNullOrEmpty(settings.CurrentResultsDirectory)) {
 		        return Path.Combine(settings.CurrentResultsDirectory, "RealmAI");
 	        }

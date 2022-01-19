@@ -7,17 +7,27 @@ namespace RealmAI {
 #if UNITY_EDITOR
     [Serializable]
     public class RealmEditorSettings {
-        private static string ConfigStateDirectory => Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", "ProjectSettings", "com.realmai.unity");
-        private static string ConfigStatePath => Path.Combine(ConfigStateDirectory, "RealmAI.json");
+        private static string ProjectSettingsDirectory => Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", "ProjectSettings", "com.realmai.unity");
+        private static string UserSettingsDirectory => Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", "UserSettings", "com.realmai.unity");
+        private static string ProjectSettingsPath => Path.Combine(ProjectSettingsDirectory, "RealmAI.json");
+        private static string UserSettingsPath => Path.Combine(UserSettingsDirectory, "RealmAI.json");
 
-        public string PlayerPrefabGuid = "";
-        public string CurrentResultsDirectory = "";
+        public class ProjectSettings {
+            public string PlayerPrefabGuid = "";
+        }
+        
+        public class UserSettings {
+            public string EnvSetupCommand = "";
+            public string CurrentResultsDirectory = "";
+        }
+        
 
-        public static RealmEditorSettings LoadSettings() {
+        // TODO these can maybe use SettingsProvider instead
+        public static ProjectSettings LoadProjectSettings() {
             try {
-                if (File.Exists(ConfigStatePath)) {
-                    var settings = new RealmEditorSettings();
-                    var json = File.ReadAllText(ConfigStatePath);
+                if (File.Exists(ProjectSettingsPath)) {
+                    var settings = new ProjectSettings();
+                    var json = File.ReadAllText(ProjectSettingsPath);
                     EditorJsonUtility.FromJsonOverwrite(json, settings);
                     return settings;
                 }
@@ -25,14 +35,45 @@ namespace RealmAI {
                 Debug.LogException(e);
             }
 
-            return null;
+            return new ProjectSettings();
         }
 
-        public static void SaveSettings(RealmEditorSettings settings) {
+        public static void SaveProjectSettings(ProjectSettings settings) {
+            if (settings == null)
+                settings = new ProjectSettings();
+            
             try {
-                Directory.CreateDirectory(ConfigStateDirectory);
+                Directory.CreateDirectory(ProjectSettingsDirectory);
                 var json = EditorJsonUtility.ToJson(settings);
-                File.WriteAllText(ConfigStatePath, json);
+                File.WriteAllText(ProjectSettingsPath, json);
+            } catch (Exception e) {
+                Debug.LogException(e);
+            }
+        }
+        
+        public static UserSettings LoadUserSettings() {
+            try {
+                if (File.Exists(UserSettingsPath)) {
+                    var settings = new UserSettings();
+                    var json = File.ReadAllText(UserSettingsPath);
+                    EditorJsonUtility.FromJsonOverwrite(json, settings);
+                    return settings;
+                }
+            } catch (Exception e) {
+                Debug.LogException(e);
+            }
+
+            return new UserSettings();
+        }
+
+        public static void SaveUserSettings(UserSettings settings) {
+            if (settings == null)
+                settings = new UserSettings();
+            
+            try {
+                Directory.CreateDirectory(UserSettingsDirectory);
+                var json = EditorJsonUtility.ToJson(settings);
+                File.WriteAllText(UserSettingsPath, json);
             } catch (Exception e) {
                 Debug.LogException(e);
             }
