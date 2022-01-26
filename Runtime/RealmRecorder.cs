@@ -1,6 +1,6 @@
+using System;
 using System.Diagnostics;
 using System.IO;
-using Unity.MLAgents.Sensors;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -10,8 +10,6 @@ namespace RealmAI {
         [SerializeField] private Camera _recordingCamera = null;
         [SerializeField] private Vector2Int _videoResolution = new Vector2Int(480, 270);
         [SerializeField] private float _videosPerMillionSteps = 100;
-        [SerializeField] private string _ffmpegPath = "";
-        // [SerializeField] private GridSensorComponentWithSensorRef _gridSensor;
 
         private const string RecordingExtension = "webm";
         
@@ -24,7 +22,41 @@ namespace RealmAI {
         private bool _recordingEpisode = false;
         private string _recordingOutPath = "";
         private Process _recordingProcess = null;
-        
+
+        private string _ffmpegPath = "";
+
+        private void Awake() {
+            GetFfmpegPathFromArgs();
+        }
+
+        private void GetFfmpegPathFromArgs() {
+            if (!Application.isEditor) {
+                var args = System.Environment.GetCommandLineArgs();
+
+                // parse from command line arguments
+                var parseFfmpegPath = false;
+                foreach (var arg in args) {
+                    if (parseFfmpegPath && _ffmpegPath == "") {
+                        _ffmpegPath = arg;
+                        parseFfmpegPath = false;
+                    } else if (arg == "-ffmpeg-path") {
+                        parseFfmpegPath = true;
+                    }
+                }
+                Debug.Log(string.Join(" ", args));
+            }
+
+
+#if UNITY_EDITOR
+            // when training in the editor, the training runner should have identified a directory for us:
+            // TODO very temp solution for getting save folder from python gui
+            var settings = RealmEditorSettings.LoadUserSettings();
+            if (!string.IsNullOrEmpty(settings.FfmpegPath)) {
+                _ffmpegPath = settings.FfmpegPath;
+            }
+#endif
+        }
+
         public void StartEpisode(int episodeNumber, int totalStepsCompleted) {
             if (!isActiveAndEnabled)
                 return;
@@ -80,6 +112,10 @@ namespace RealmAI {
         }
 
         private void StartRecording() {
+            if (string.IsNullOrEmpty(_ffmpegPath)) {
+                return;
+            }
+            
             var saveDirectory = Path.Combine(_realmAgent.SaveDirectory, "Videos");
             Directory.CreateDirectory(saveDirectory);
             // TODO resolve filename conflicts across multiple environments
@@ -104,7 +140,7 @@ namespace RealmAI {
             }
 
             // start ffmpeg process
-            ProcessStartInfo startInfo = new ProcessStartInfo();
+            var startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = true;
             startInfo.UseShellExecute = false;
             startInfo.FileName = _ffmpegPath;
@@ -115,15 +151,25 @@ namespace RealmAI {
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardError = true; // ffmpeg outputs everything to std error    
 
-            _recordingProcess = Process.Start(startInfo);
+            try {
+                _recordingProcess = Process.Start(startInfo);
+            } catch (Exception e) {
+                Debug.LogException(e);
+                _recordingProcess = null;
+            }
+
             if (_recordingProcess == null) {
                 Debug.LogError("Failed to start FFmpeg process");
                 _recordingEpisode = false;
-                CancelRecording();
             }
         }
 
         private void RecordFrame() {
+            if (_recordingProcess == null || _recordingProcess.HasExited) {
+                Debug.LogWarning("Trying to record video replay frame when recording process is not running");
+                return;
+            }
+            
             var cameraWasEnabled = _recordingCamera.enabled;
             _recordingCamera.enabled = true;
             

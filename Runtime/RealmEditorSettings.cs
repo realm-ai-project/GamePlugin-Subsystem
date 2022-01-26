@@ -19,9 +19,9 @@ namespace RealmAI {
         public class UserSettings {
             public string EnvSetupCommand = "";
             public string CurrentResultsDirectory = "";
+            public string FfmpegPath = "";
         }
         
-
         // TODO these can maybe use SettingsProvider instead
         public static ProjectSettings LoadProjectSettings() {
             try {

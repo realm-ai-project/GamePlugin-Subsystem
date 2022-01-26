@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using Unity.MLAgents;
 using Unity.MLAgents.Policies;
@@ -232,30 +231,25 @@ namespace RealmAI {
             GUILayout.Label("Analytics", EditorStyles.largeLabel);
             EditorGUI.indentLevel++;
             {
-                EditorGUILayout.LabelField("This section contains setup to allow the stats and other analytics data to be recorded.", EditorStyles.wordWrappedLabel);
+                EditorGUILayout.LabelField("This section contains setup to allow the heatmap and video replays to generated.", EditorStyles.wordWrappedLabel);
 
                 EditorGUILayout.PropertyField(realmSensor.FindProperty("_positionRecordInterval"), new GUIContent("Position Record Interval"));
                 EditorGUILayout.HelpBox("For generating heatmaps, how long (in seconds) should we wait between recording each point of the player's position?.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
                 realmSensor.ApplyModifiedProperties();
 
-                EditorGUILayout.PropertyField(realmRecorder.FindProperty("_ffmpegPath"), new GUIContent("FFMPEG Path"));
-                EditorGUILayout.HelpBox("Optionally, provide a path to an ffmpeg executable to record video replays.", MessageType.None);
+                EditorGUILayout.PropertyField(realmRecorder.FindProperty("_videoResolution"), new GUIContent("Video Resolution"));
+                EditorGUILayout.HelpBox("The resolution for video replays (if using the video replays feature).", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
-                if (!string.IsNullOrEmpty(realmRecorder.FindProperty("_ffmpegPath").stringValue)) {
-                    EditorGUILayout.PropertyField(realmRecorder.FindProperty("_videoResolution"), new GUIContent("Video Resolution"));
-                    EditorGUILayout.HelpBox("The resolution for video replays.", MessageType.None);
-                    EditorGUILayout.Space(spaceBetweenProperties);
-                    EditorGUILayout.PropertyField(realmRecorder.FindProperty("_videosPerMillionSteps"), new GUIContent("Videos Per Million Steps"));
-                    EditorGUILayout.HelpBox("The frequency of video replays. Generally, leave this at a low number unless you need a lot of video replays.", MessageType.None);
-                    EditorGUILayout.Space(spaceBetweenProperties);
-                }
+                EditorGUILayout.PropertyField(realmRecorder.FindProperty("_videosPerMillionSteps"), new GUIContent("Videos Per Million Steps"));
+                EditorGUILayout.HelpBox("The frequency of video replays (if using the video replays feature). Generally, leave this at a low number unless you need a lot of video replays.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
 
                 realmRecorder.ApplyModifiedProperties();
             }
             EditorGUI.indentLevel--;
         }
-        
+
         private void ConfigureUserSettings() {
             HLine();
 
@@ -271,11 +265,21 @@ namespace RealmAI {
                 EditorGUILayout.HelpBox("Optionally, provide command(s) to run to setup the current environment " +
                                         "before running any of the training processes. For example, add a command to activate your " +
                                         "Python environment here.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
                 if (envSetupCommand != userSettings.EnvSetupCommand) {
                     userSettingsChanged = true;
                     userSettings.EnvSetupCommand = envSetupCommand;
                 }
+                
+                EditorGUILayout.LabelField("FFmpeg Path", EditorStyles.boldLabel);
+                var ffmpegPath = EditorGUILayout.TextField(userSettings.FfmpegPath);
+                EditorGUILayout.HelpBox("Optionally, provide a path to a FFmpeg executable. This is required to enable the" +
+                                        "video replay feature. Downloads for FFmpeg executables can be found at https://www.ffmpeg.org/.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
+                if (envSetupCommand != userSettings.FfmpegPath) {
+                    userSettingsChanged = true;
+                    userSettings.FfmpegPath = ffmpegPath;
+                }
             }
             EditorGUI.indentLevel--;
 
@@ -283,7 +287,7 @@ namespace RealmAI {
                 RealmEditorSettings.SaveUserSettings(userSettings);
             }
         }
-        
+
         private void HLine() {
             // draw a horizontal line with slight spacing above and below
             var horizontalLine = new GUIStyle();

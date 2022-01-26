@@ -67,7 +67,7 @@ namespace RealmAI {
 #if UNITY_EDITOR_WIN
                 extension = "exe";
 #elif UNITY_EDITOR_OSX
-                extension = "app";con
+                extension = "app";
 #elif UNITY_EDITOR_LINUX
                 if (IntPtr.Size == 8) {
                     extension = "x86_64";
@@ -104,12 +104,15 @@ namespace RealmAI {
                 EnsureTemplatesExist();
                 var runId = $"{behaviorName}_{DateTime.Now.ToString(DateTimeFormat)}";
                 var resultsDir = Path.Combine(BaseResultsDir, "Build");
-
-                // TODO: don't need this for build
-                SaveCurrentResultsDirectory(Path.Combine(resultsDir, runId));
-
+                
+                var userSettings = RealmEditorSettings.LoadUserSettings();
+                var ffmpegPathArg = "";
+                if (!string.IsNullOrEmpty(userSettings.FfmpegPath)) {
+                    ffmpegPathArg = $"--ffmpeg-path \"{userSettings.FfmpegPath}\"";
+                }
+                
                 RunCommands(new[] {
-                    $"realm-gui --results-dir \"{resultsDir}\" --run-id {runId} --env-path \"{buildPath}\" --hyperparameter",
+                    $"realm-gui --results-dir \"{resultsDir}\" --run-id {runId} --env-path \"{buildPath}\" {ffmpegPathArg} --hyperparameter",
                 });
             } else {
                 Debug.Log("Build and Train: Stop playing in the editor and try again.");
