@@ -13,10 +13,14 @@ namespace RealmAI {
         private GridSensor2D _debugSensor = null;
 
         public override ISensor[] CreateSensors() {
-            _debugSensor = new GridSensor2D(_cellSize, _cellCount, _detectableTags, gameObject, _colliderMask);
             return new ISensor[] {new OneHotGridSensor2D(_cellSize, _cellCount, _detectableTags, gameObject, _colliderMask)};
         }
-
+        
+        private void OnValidate() {
+            // TODO: although this updates on demand, it won't actually reflect the actual sensor if it was changed after the sensor was already created 
+            _debugSensor = new GridSensor2D(_cellSize, _cellCount, _detectableTags, gameObject, _colliderMask);
+        }
+        
         private void OnDrawGizmos() {
             if (!_showGizmos)
                 return;
