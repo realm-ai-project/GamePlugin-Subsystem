@@ -151,9 +151,11 @@ namespace RealmAI {
 
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardError = true; // ffmpeg outputs everything to std error    
-
+            
             try {
                 _recordingProcess = Process.Start(startInfo);
+                _recordingProcess.OutputDataReceived += (sender, args) => HandleProcessOutput(args.Data);
+                _recordingProcess.BeginErrorReadLine();
             } catch (Exception e) {
                 Debug.LogException(e);
                 _recordingProcess = null;
@@ -164,16 +166,24 @@ namespace RealmAI {
                 _recordingEpisode = false;
             }
         }
+        
+        private void HandleProcessOutput(string line) {
+            if (string.IsNullOrEmpty(line)) {
+                return;
+            }
+            
+            Debug.Log($"<color=#44b5dbff>{line}</color>");
+        }
 
         private void RecordFrame() {
             if (_recordingProcess == null || _recordingProcess.HasExited) {
                 Debug.LogWarning("Trying to record video replay frame when recording process is not running");
                 return;
             }
-            
+
             var cameraWasEnabled = _recordingCamera.enabled;
             _recordingCamera.enabled = true;
-            
+
             var rt = new RenderTexture(_videoResolution.x, _videoResolution.y, 0);
             var camRt = _recordingCamera.targetTexture;
             _recordingCamera.targetTexture = rt;
@@ -187,21 +197,19 @@ namespace RealmAI {
             texture.Apply();
             RenderTexture.active = activeRt;
 
-            using (var stream = new MemoryStream()) {
-                var bytes = texture.GetRawTextureData();
-                stream.Write(bytes, 0, bytes.Length);
-
-                Destroy(rt);
-                Destroy(texture);
-                try {
-                    _recordingProcess.StandardInput.Write(stream);
-                    _recordingProcess.StandardInput.Flush();
-                } catch (IOException e) {
-                    Debug.LogException(e);
-                    _recordingEpisode = false;
-                    CancelRecording();
-                }
+            var bytes = texture.GetRawTextureData();
+            try {
+                _recordingProcess.StandardInput.BaseStream.Write(bytes, 0, bytes.Length);
+                _recordingProcess.StandardInput.Flush();
+            } catch (IOException e) {
+                Debug.LogException(e);
+                _recordingEpisode = false;
+                CancelRecording();
             }
+
+            Destroy(rt);
+            Destroy(texture);
+            
             _recordingCamera.enabled = cameraWasEnabled;
         }
 
@@ -212,8 +220,7 @@ namespace RealmAI {
             
             try {
                 _recordingProcess.StandardInput.Close();
-                string output = _recordingProcess.StandardError.ReadToEnd();
-                Debug.Log("Recording completed: ffmpeg output:" + output);
+                Debug.Log("Recording completed");
                 _recordingProcess.WaitForExit();
             } finally {
                 _recordingProcess.Dispose();
@@ -231,8 +238,7 @@ namespace RealmAI {
             
             try {
                 _recordingProcess.StandardInput.Close();
-                string output = _recordingProcess.StandardError.ReadToEnd();
-                Debug.Log("Recording cancelled: ffmpeg output:" + output);
+                Debug.Log("Recording cancelled");
                 _recordingProcess.WaitForExit();
             } finally {
                 _recordingProcess.Dispose();
