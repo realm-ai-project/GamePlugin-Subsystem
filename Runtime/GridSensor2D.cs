@@ -46,7 +46,6 @@ namespace RealmAI {
             int maxColliderBufferSize = 500) {
 
             if (compressionType == SensorCompressionType.PNG && (cellSize.x < 20 || cellSize.y < 20)) {
-                Debug.Log("Grid sensor grid size is too small for PNG compression, using no compression.");
                 compressionType = SensorCompressionType.None;
             }
             
@@ -96,6 +95,7 @@ namespace RealmAI {
         }
 
         public CompressionSpec GetCompressionSpec() {
+            // TODO we can add CompressionSpec.CompressedChannelMapping here to drop unused layers
             return new CompressionSpec(_compressionType);
         }
 

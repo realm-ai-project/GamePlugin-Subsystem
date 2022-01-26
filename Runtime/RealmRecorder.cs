@@ -189,15 +189,12 @@ namespace RealmAI {
 
             using (var stream = new MemoryStream()) {
                 var bytes = texture.GetRawTextureData();
-                // if (_gridSensor.Sensors != null && _gridSensor.Sensors.Length > 0) {
-                //     bytes = _gridSensor.Sensors[0].GetCompressedObservation();
-                // }
                 stream.Write(bytes, 0, bytes.Length);
 
                 Destroy(rt);
                 Destroy(texture);
                 try {
-                    stream.WriteTo(_recordingProcess.StandardInput.BaseStream);
+                    _recordingProcess.StandardInput.Write(stream);
                     _recordingProcess.StandardInput.Flush();
                 } catch (IOException e) {
                     Debug.LogException(e);
@@ -210,7 +207,6 @@ namespace RealmAI {
 
         private void StopRecording() {
             if (_recordingProcess == null || _recordingProcess.HasExited) {
-                Debug.LogWarning("Trying to record video replay frame when recording process is not running");
                 return;
             }
             
@@ -230,7 +226,6 @@ namespace RealmAI {
 
         private void CancelRecording() {
             if (_recordingProcess == null || _recordingProcess.HasExited) {
-                Debug.LogWarning("Trying to record video replay frame when recording process is not running");
                 return;
             }
             

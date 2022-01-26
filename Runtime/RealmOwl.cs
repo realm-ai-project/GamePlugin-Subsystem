@@ -13,7 +13,6 @@ namespace RealmAI {
 		[SerializeField] private RealmAgent _realmAgent = null;
 		[SerializeField] private string _filePrefix = "data";
 		[SerializeField] private StorageFormat _storageFormat = StorageFormat.Compact;
-		[SerializeField] private float _flushPeriod = 60;
 
 		// For each instance of this class, assign an integer Id.
 		// This is used to create a unique file name for writing to. 
@@ -26,16 +25,12 @@ namespace RealmAI {
 		private float _duration = 0;
 		private float _reward = 0;
 		private List<Vector2> _positions = new List<Vector2>();
-
+		
 		private void Awake() {
 			_instanceId = _instancesCount;
 			_instancesCount++;
 		}
 		
-		private void Start() {
-			StartCoroutine(Flusher());
-		}
-
 		private void InitializeFile() {
 			if (_fileWriter != null) {
 				Debug.LogWarning("Data storage file is being initialized multiple times!");
@@ -92,6 +87,9 @@ namespace RealmAI {
 		}
 
 		public void StartNewEpisode(int episodeNum) {
+			if (!isActiveAndEnabled)
+				return;
+			
 			if (_firstEpisode) {
 				_firstEpisode = false;
 				InitializeFile();
@@ -124,6 +122,7 @@ namespace RealmAI {
 			}
 
 			_fileWriter.WriteEpisode(_episodeNum, _duration, _reward, _positions);
+			_fileWriter.Flush();
 		}
 
 		private void Close() {
@@ -141,13 +140,6 @@ namespace RealmAI {
 
 		private void OnApplicationQuit() {
 			Close();
-		}
-
-		private IEnumerator Flusher() {
-			while (true) {
-				yield return new WaitForSeconds(_flushPeriod);
-				_fileWriter?.Flush();
-			}
 		}
 	}
 }
