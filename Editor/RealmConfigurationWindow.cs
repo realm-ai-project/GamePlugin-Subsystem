@@ -119,7 +119,7 @@ namespace RealmAI {
             var decisionRequester = new SerializedObject(_realmModuleRoot.GetComponentInChildren<DecisionRequester>());
             var realmAgent = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmAgent>());
             var realmSensor = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmSensorComponent>());
-            var gridSensor = new SerializedObject(_realmModuleRoot.GetComponentInChildren<GridSensorComponent>());
+            var gridSensor = new SerializedObject(_realmModuleRoot.GetComponentInChildren<GridSensor2DComponent>());
             var realmActuator = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmActuatorComponent>());
             var realmOwl = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmOwl>());
             var realmRecorder = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmRecorder>());
@@ -165,35 +165,33 @@ namespace RealmAI {
                 realmSensor.ApplyModifiedProperties();
 
                 EditorGUILayout.LabelField("The computer will detect objects in its surroundings by detecting physics colliders in a grid.", EditorStyles.wordWrappedLabel);
-                EditorGUILayout.PropertyField(gridSensor.FindProperty("m_ColliderMask"), new GUIContent("Collider Mask"));
-                EditorGUILayout.HelpBox("Select all layers which have important colliders to know about.", MessageType.None);
+                EditorGUILayout.PropertyField(gridSensor.FindProperty("_colliderMask"), new GUIContent("Collider Mask"));
+                EditorGUILayout.HelpBox("Select all layers which have important colliders the player should know about.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
-                EditorGUILayout.PropertyField(gridSensor.FindProperty("m_DetectableTags"), new GUIContent("Detectable Tags"));
-                EditorGUILayout.HelpBox("Enter the tags on the colliders that should be detectable. " +
+                EditorGUILayout.PropertyField(gridSensor.FindProperty("_detectableTags"), new GUIContent("Detectable Tags"));
+                EditorGUILayout.HelpBox("Enter all possible tags on the colliders objects that should be detectable. " +
                                         "Colliders representing different types of objects should have different tags.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
-                EditorGUILayout.PropertyField(gridSensor.FindProperty("m_GridSize"), new GUIContent("Grid Cell Size"));
+                EditorGUILayout.PropertyField(gridSensor.FindProperty("_cellCount"), new GUIContent("Grid Cell Count"));
                 EditorGUILayout.HelpBox("The number of cells along each dimension of the grid. " +
                                         "This should make the grid large enough for the computer to play the game properly.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
-                EditorGUILayout.PropertyField(gridSensor.FindProperty("m_CellScale"), new GUIContent("Grid Cell Scale"));
+                EditorGUILayout.PropertyField(gridSensor.FindProperty("_cellSize"), new GUIContent("Grid Cell Size"));
                 EditorGUILayout.HelpBox("The size of each cell in the grid. " +
                                         "The smaller the cell size, the more precisely the computer can play the game. " +
                                         "This should be small enough so the computer can play well, but not too small.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
-                EditorGUILayout.PropertyField(gridSensor.FindProperty("m_ShowGizmos"), new GUIContent("Show Grid Gizmos"));
-                EditorGUILayout.HelpBox("You can show gizmos for the grid for testing and debugging.", MessageType.None);
+                EditorGUILayout.PropertyField(gridSensor.FindProperty("_showGizmos"), new GUIContent("Show Grid Gizmos"));
+                EditorGUILayout.HelpBox("You can show gizmos for the grid for testing and debugging in play mode.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
-                if (gridSensor.FindProperty("m_ShowGizmos").boolValue) {
-                    EditorGUILayout.PropertyField(gridSensor.FindProperty("m_GizmoYOffset"), new GUIContent("Grid Gizmo Y Offset"));
-                    EditorGUILayout.Space(spaceBetweenProperties);
-                    EditorGUILayout.PropertyField(gridSensor.FindProperty("m_DebugColors"), new GUIContent("Grid Debug Colors"));
-                    EditorGUILayout.HelpBox("For each detectable tag, assign a color. When a cell detects a collider with a detectable tag, " +
-                                            "the cell in the gizmo will turn into the corresponding color.", MessageType.None);
+                if (gridSensor.FindProperty("_showGizmos").boolValue) {
+                    EditorGUILayout.PropertyField(gridSensor.FindProperty("_gizmoColors"), new GUIContent("Grid Gizmo Colors"));
+                    EditorGUILayout.HelpBox("For each detectable tag, assign a color in the corresponding index of this array. " +
+                                            "When a cell detects a collider with a detectable tag, the cell in the gizmo will turn into the corresponding color.", MessageType.None);
                     EditorGUILayout.Space(spaceBetweenProperties);
                 }
 

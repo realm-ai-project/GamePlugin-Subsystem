@@ -9,20 +9,23 @@ namespace RealmAI {
         [SerializeField] private SerializedVector2Delegate _positionFunction = default;
         [SerializeField] private float _positionRecordInterval = 0.5f;
 
+        private float _flushCooldown = 0;
+        
         public override ISensor[] CreateSensors()
         {
             return new ISensor[] { new RealmSensor(_realmOwl, _positionFunction) };
         }
         
-        private void Start() {
-            StartCoroutine(Flusher());
+        public void StartNewEpisode() {
+            _flushCooldown = 0;
         }
-        
-        private IEnumerator Flusher() {
-            while (true) {
-                yield return new WaitForSeconds(_positionRecordInterval);
+
+        private void Update() {
+            _flushCooldown -= Time.deltaTime;
+            if (_flushCooldown <= 0) {
                 var position = _positionFunction.Invoke();
                 _realmOwl.RecordPosition(position);
+                _flushCooldown = _positionRecordInterval;
             }
         }
     }

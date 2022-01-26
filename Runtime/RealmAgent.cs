@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace RealmAI {
 	public class RealmAgent : Agent {
+		[SerializeField] private RealmSensorComponent _realmSensor = default;
 		[SerializeField] private RealmOwl _realmOwl = default;
 		[SerializeField] private RealmRecorder _realmRecorder = default;
 		[SerializeField] private SerializedAction _resetFunction = default;
@@ -29,6 +30,7 @@ namespace RealmAI {
 		public override void OnEpisodeBegin() {
 			_lastReward = 0;
 			_episodeDuration = 0;
+			_realmSensor.StartNewEpisode();
 			_realmOwl.StartNewEpisode(CompletedEpisodes);
 			_realmRecorder.StartEpisode(CompletedEpisodes, Academy.Instance.TotalStepCount);
 			_resetFunction.Invoke();

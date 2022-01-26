@@ -113,6 +113,7 @@ namespace RealmAI {
 
         private void StartRecording() {
             if (string.IsNullOrEmpty(_ffmpegPath)) {
+                _recordingEpisode = false;
                 return;
             }
             
@@ -208,6 +209,11 @@ namespace RealmAI {
         }
 
         private void StopRecording() {
+            if (_recordingProcess == null || _recordingProcess.HasExited) {
+                Debug.LogWarning("Trying to record video replay frame when recording process is not running");
+                return;
+            }
+            
             try {
                 _recordingProcess.StandardInput.Close();
                 string output = _recordingProcess.StandardError.ReadToEnd();
@@ -223,6 +229,11 @@ namespace RealmAI {
 
 
         private void CancelRecording() {
+            if (_recordingProcess == null || _recordingProcess.HasExited) {
+                Debug.LogWarning("Trying to record video replay frame when recording process is not running");
+                return;
+            }
+            
             try {
                 _recordingProcess.StandardInput.Close();
                 string output = _recordingProcess.StandardError.ReadToEnd();

@@ -58,7 +58,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9217989327636220972}
   - component: {fileID: 6293500372321809640}
-  - component: {fileID: 2656681965178997761}
+  - component: {fileID: 5188558230583100200}
   m_Layer: 0
   m_Name: Sensor
   m_TagString: Untagged
@@ -98,7 +98,7 @@ MonoBehaviour:
     _script: {fileID: 0}
     _methodName: 
   _positionRecordInterval: 0.5
---- !u!114 &2656681965178997761
+--- !u!114 &5188558230583100200
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,25 +107,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 3936234473448951908}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a501962d056745d1a30e99146ee39fe, type: 3}
+  m_Script: {fileID: 11500000, guid: c4a5ce6d70f33ad4d99af10f07adbcaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SensorName: GridSensor
-  m_CellScale: {x: 1, y: 0.01, z: 1}
-  m_GridSize: {x: 24, y: 1, z: 24}
-  m_RotateWithAgent: 0
-  m_AgentGameObject: {fileID: 0}
-  m_DetectableTags: []
-  m_ColliderMask:
+  _cellSize: {x: 1, y: 1}
+  _cellCount: {x: 20, y: 20}
+  _detectableTags: []
+  _colliderMask:
     serializedVersion: 2
     m_Bits: 0
-  m_MaxColliderBufferSize: 500
-  m_InitialColliderBufferSize: 4
-  m_DebugColors: []
-  m_GizmoYOffset: 0
-  m_ShowGizmos: 0
-  m_CompressionType: 1
-  m_ObservationStacks: 1
+  _drawGizmos: 0
+  _gizmoColors: []
 --- !u!1 &5974495024764727846
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +381,7 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
+  _realmSensor: {fileID: 6293500372321809640}
   _realmOwl: {fileID: 8072616143281511398}
   _realmRecorder: {fileID: 4481804292444716366}
   _resetFunction:
