@@ -48,7 +48,6 @@ MonoBehaviour:
   _recordingCamera: {fileID: 6534901877959408365}
   _videoResolution: {x: 480, y: 270}
   _videosPerMillionSteps: 100
-  _ffmpegPath: 
 --- !u!1 &3936234473448951908
 GameObject:
   m_ObjectHideFlags: 0
