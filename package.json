@@ -2,7 +2,7 @@
   "name": "com.realmai.unity",
   "version": "0.1.1",
   "displayName": "REALM_AI Unity",
-  "description": "Unity package for REALM_AI project",
+  "description": "Unity package for REALM_AI project. This package is created for a research project and is provided \"as is\".\n\nThis package adds the prefab \"Realm AI Module\", which is design to provide a simple integration of ML-Agents for 2D platformer games and to collect data while training for generating insights afterwards.\nDocumentation can be found https://realm-ai-project.github.io/documentation/",
   "unity": "2019.4",
   "documentationUrl": "https://example.com/",
   "changelogUrl": "https://example.com/changelog.html",
