@@ -1,19 +1,19 @@
 self.__precacheManifest = [
   {
-    "revision": "be2dd1273ac5a0b53919",
-    "url": "./static/css/main.46c3633b.chunk.css"
+    "revision": "43adfcdeca42b1729632",
+    "url": "./static/css/main.67ca5768.chunk.css"
   },
   {
-    "revision": "be2dd1273ac5a0b53919",
-    "url": "./static/js/main.be2dd127.chunk.js"
+    "revision": "43adfcdeca42b1729632",
+    "url": "./static/js/main.43adfcde.chunk.js"
   },
   {
-    "revision": "4b3dbd13f0f561092468",
-    "url": "./static/css/1.e693014a.chunk.css"
+    "revision": "6d36d0723500bafbf96a",
+    "url": "./static/css/1.60f4d009.chunk.css"
   },
   {
-    "revision": "4b3dbd13f0f561092468",
-    "url": "./static/js/1.4b3dbd13.chunk.js"
+    "revision": "6d36d0723500bafbf96a",
+    "url": "./static/js/1.6d36d072.chunk.js"
   },
   {
     "revision": "4a686d48d5a089750c49",
@@ -36,10 +36,6 @@ self.__precacheManifest = [
     "url": "./static/media/dots.3fd8845e.svg"
   },
   {
-    "revision": "db10a10dc0288f66d7003641bebbad91",
-    "url": "./static/media/vibe-logo.db10a10d.svg"
-  },
-  {
     "revision": "05f9bc6d0460b0f780979f006a76d136",
     "url": "./static/media/laptop.05f9bc6d.jpeg"
   },
@@ -54,6 +50,10 @@ self.__precacheManifest = [
   {
     "revision": "8db0524040f5f8b3834c0eefe65aaca9",
     "url": "./static/media/avatar2.8db05240.jpeg"
+  },
+  {
+    "revision": "db10a10dc0288f66d7003641bebbad91",
+    "url": "./static/media/vibe-logo.db10a10d.svg"
   },
   {
     "revision": "a2d15caa900c55c634969d14c2bdbe78",
@@ -76,7 +76,7 @@ self.__precacheManifest = [
     "url": "./static/media/responsive-feature.a7b5f5aa.svg"
   },
   {
-    "revision": "17707c37105d594e10af4513b9e1a61f",
+    "revision": "9c40a586276c5b21e02ed442ee6df1c0",
     "url": "./index.html"
   }
 ];

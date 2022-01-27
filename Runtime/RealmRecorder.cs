@@ -147,15 +147,16 @@ namespace RealmAI {
             startInfo.FileName = _ffmpegPath;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = $"-f rawvideo -pixel_format rgb24 -video_size {_videoResolution.x}x{_videoResolution.y} -framerate {framerate} -i pipe: -vf vflip -y \"{_recordingOutPath}-temp.{RecordingExtension}\"";
-            // startInfo.Arguments = $"-f image2pipe -framerate {framerate} -i pipe: -vf vflip -y \"{_recordingOutPath}-temp.{RecordingExtension}\"";
 
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardError = true; // ffmpeg outputs everything to std error    
             
             try {
                 _recordingProcess = Process.Start(startInfo);
-                _recordingProcess.OutputDataReceived += (sender, args) => HandleProcessOutput(args.Data);
-                _recordingProcess.BeginErrorReadLine();
+                if (_recordingProcess != null) {
+                    _recordingProcess.OutputDataReceived += (sender, args) => HandleProcessOutput(args.Data);
+                    _recordingProcess.BeginErrorReadLine();
+                }
             } catch (Exception e) {
                 Debug.LogException(e);
                 _recordingProcess = null;

@@ -138,8 +138,7 @@ namespace RealmAI {
             EnsureTemplatesExist();
 
             RunCommands(new[] {
-                $"cd \"{DashboardApiDir}\"",
-                "flask run",
+                "realm-report",
             });
 
             Application.OpenURL($"file://{DashboardPath}");
