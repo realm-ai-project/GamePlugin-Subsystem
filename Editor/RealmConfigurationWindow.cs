@@ -137,8 +137,14 @@ namespace RealmAI {
                 EditorGUILayout.Space(spaceBetweenProperties);
                 behaviorParameters.ApplyModifiedProperties();
 
+                EditorGUILayout.PropertyField(realmAgent.FindProperty("_initializeFunction"), new GUIContent("Initialize Function"));
+                EditorGUILayout.HelpBox("Provide a function that we can call to initialize the game environment. " +
+                                        "This will be called once at the start of the game.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
+                
                 EditorGUILayout.PropertyField(realmAgent.FindProperty("_resetFunction"), new GUIContent("Reset Function"));
-                EditorGUILayout.HelpBox("Provide a function that we can call to reset the game environment to its initial state.", MessageType.None);
+                EditorGUILayout.HelpBox("Provide a function that we can call to reset the game environment to its initial state. " +
+                                        "This will be called at the start of the game (after the Initialize Function) and each time after the game is over.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
                 EditorGUILayout.PropertyField(realmAgent.FindProperty("_rewardFunction"), new GUIContent("Reward Function"));
@@ -274,7 +280,7 @@ namespace RealmAI {
                 EditorGUILayout.HelpBox("Optionally, provide a path to a FFmpeg executable. This is required to enable the" +
                                         "video replay feature. Downloads for FFmpeg executables can be found at https://www.ffmpeg.org/.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
-                if (envSetupCommand != userSettings.FfmpegPath) {
+                if (ffmpegPath != userSettings.FfmpegPath) {
                     userSettingsChanged = true;
                     userSettings.FfmpegPath = ffmpegPath;
                 }

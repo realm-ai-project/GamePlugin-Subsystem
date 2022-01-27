@@ -12,7 +12,7 @@ namespace RealmAI {
 			void Close();
 		}
 		
-		internal  class BinaryDataFileWriter : IDataFileWriter {
+		internal class BinaryDataFileWriter : IDataFileWriter {
 			private BinaryWriter _writer = null;
 			
 			public void Initialize(Stream stream) {
@@ -49,7 +49,7 @@ namespace RealmAI {
 			}
 		}
 		
-		internal  class JsonDataFileWriter : IDataFileWriter {
+		internal class JsonDataFileWriter : IDataFileWriter {
 			private JsonTextWriter _writer = null;
 			
 			public void Initialize(Stream stream) {

@@ -45,6 +45,26 @@ namespace RealmAI {
             int initialColliderBufferSize = 10,
             int maxColliderBufferSize = 500) {
 
+            if (cellSize.x < 0) {
+                cellSize.x = 1;
+                Debug.LogWarning("Grid Sensor cell size cannot be negative");
+            }
+            
+            if (cellSize.y < 0) {
+                cellSize.y = 1;
+                Debug.LogWarning("Grid Sensor cell size cannot be negative");
+            }
+            
+            if (cellCount.x < 0) {
+                cellCount.x = 1;
+                Debug.LogWarning("Grid Sensor cell count cannot be negative");
+            }
+            
+            if (cellCount.y < 0) {
+                cellCount.y = 1;
+                Debug.LogWarning("Grid Sensor cell count cannot be negative");
+            }
+            
             if (compressionType == SensorCompressionType.PNG && (cellSize.x < 20 || cellSize.y < 20)) {
                 compressionType = SensorCompressionType.None;
             }
@@ -67,7 +87,7 @@ namespace RealmAI {
                 for (int j = 0; j < cellCount.y; j++) {
                     var x = (i - (cellCount.x - 1) / 2f) * cellSize.x;
                     var y = (j - (cellCount.y - 1) / 2f) * cellSize.y;
-                    _cellLocalPositions[i + j * cellCount.y] = new Vector2(x, y);
+                    _cellLocalPositions[i + j * cellCount.x] = new Vector2(x, y);
                 }
             }
 

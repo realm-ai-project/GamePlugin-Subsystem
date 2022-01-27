@@ -53,11 +53,6 @@ namespace RealmAI {
 					return;
 			}
 			
-			
-			// TODO: validate path and handle errors
-			// TODO: consider policy for overwriting
-			// TODO: handle relative path?
-			
 			// open file for writing
 			var saveDirectory = Path.Combine(_realmAgent.SaveDirectory, "Data");
 			Directory.CreateDirectory(saveDirectory);
@@ -66,10 +61,16 @@ namespace RealmAI {
 				try {
 					var path = Path.Combine(saveDirectory, $"{_filePrefix}-{count}.{fileExtension}");
 					var fileExists = File.Exists(path);
-					var fileStream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.None);
+					if (fileExists && _storageFormat == StorageFormat.Json) {
+						// the json writer cannot append to existing json files so we'll make a new json file instead
+						count++;
+						continue;
+					}
+					
+					var fileStream = File.Open(path, FileMode.Append, FileAccess.Write, FileShare.None);
 					_fileWriter.Initialize(fileStream);
 					if (fileExists) {
-						Debug.Log($"Overwriting existing data on {path}");
+						Debug.Log($"Appending to existing data on {path}");
 					} else {
 						Debug.Log($"Saving data to {path}");
 					}

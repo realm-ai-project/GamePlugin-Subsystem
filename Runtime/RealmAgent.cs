@@ -7,6 +7,7 @@ namespace RealmAI {
 		[SerializeField] private RealmSensorComponent _realmSensor = default;
 		[SerializeField] private RealmOwl _realmOwl = default;
 		[SerializeField] private RealmRecorder _realmRecorder = default;
+		[SerializeField] private SerializedAction _initializeFunction = default;
 		[SerializeField] private SerializedAction _resetFunction = default;
 		[SerializeField] private SerializedFloatFunc _rewardFunction = default;
 		[SerializeField] private SerializedBoolFunc _gameOverFunction = default;
@@ -25,6 +26,7 @@ namespace RealmAI {
 
 		private float _lastReward = 0;
 		private float _episodeDuration = 0;
+		private bool _initialized = false;
 
 
 		public override void OnEpisodeBegin() {
@@ -33,7 +35,11 @@ namespace RealmAI {
 			_realmSensor.StartNewEpisode();
 			_realmOwl.StartNewEpisode(CompletedEpisodes);
 			_realmRecorder.StartEpisode(CompletedEpisodes, Academy.Instance.TotalStepCount);
-			_resetFunction.Invoke();
+			if (!_initialized) {
+				_initialized = true;
+				_initializeFunction?.Invoke();
+			}
+			_resetFunction?.Invoke();
 		}
 
 		private void Update() {
@@ -41,10 +47,8 @@ namespace RealmAI {
 			_episodeDuration += Time.deltaTime;
 			_realmOwl.RecordDuration(_episodeDuration);
 
-			if (_gameOverFunction != null) {
-				if (_gameOverFunction.Invoke()) {
-					EndEpisode();
-				}
+			if (_gameOverFunction?.Invoke() ?? false) {
+				EndEpisode();
 			}
 		}
 
