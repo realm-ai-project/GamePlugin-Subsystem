@@ -154,6 +154,10 @@ namespace RealmAI {
                 EditorGUILayout.PropertyField(realmAgent.FindProperty("_gameOverFunction"), new GUIContent("Game Over Function"));
                 EditorGUILayout.HelpBox("Provide a function that we can call which will return true when the current game is over.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
+                
+                EditorGUILayout.PropertyField(realmAgent.FindProperty("_episodeTimeout"), new GUIContent("Max Episode Length"));
+                EditorGUILayout.HelpBox("If set to a positive number, each game will automatically end after this amount of time.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
                 realmAgent.ApplyModifiedProperties();
             }
             EditorGUI.indentLevel--;

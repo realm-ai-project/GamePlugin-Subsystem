@@ -9,8 +9,9 @@ namespace RealmAI {
 		[SerializeField] private RealmRecorder _realmRecorder = default;
 		[SerializeField] private SerializedAction _initializeFunction = default;
 		[SerializeField] private SerializedAction _resetFunction = default;
-		[SerializeField] private SerializedFloatFunc _rewardFunction = default;
 		[SerializeField] private SerializedBoolFunc _gameOverFunction = default;
+		[SerializeField] private float _episodeTimeout = -1;
+		[SerializeField] private SerializedFloatFunc _rewardFunction = default;
 
 		private string _saveDirectory = "";
 
@@ -49,6 +50,8 @@ namespace RealmAI {
 
 			if (_gameOverFunction?.Invoke() ?? false) {
 				EndEpisode();
+			} else if (_episodeTimeout > 0 && _episodeDuration > _episodeTimeout) {
+				EndEpisode();
 			}
 		}
 
@@ -62,6 +65,7 @@ namespace RealmAI {
 				_realmRecorder.RecordReward(currentReward);
 			}
 		}
+
 
 		private string GetSaveDirectory() {
 			if (!Application.isEditor) {

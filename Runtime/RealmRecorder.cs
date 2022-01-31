@@ -10,17 +10,18 @@ namespace RealmAI {
         [SerializeField] private Camera _recordingCamera = null;
         [SerializeField] private Vector2Int _videoResolution = new Vector2Int(480, 270);
         [SerializeField] private float _videosPerMillionSteps = 100;
-
+        [SerializeField] private bool _logFfmpegOutput = false;
+        
         private const string RecordingExtension = "webm";
         
         private int _episodeNumber = 0;
-        private int _totalStepsCompleted = 0;
         private float _currentReward = 0;
         
         private int _recordedVideoCount = 0;
         
         private bool _recordingEpisode = false;
-        private string _recordingOutPath = "";
+        private string _tempRecordingPath = "";
+        private string _finalRecordingPath = "";
         private Process _recordingProcess = null;
 
         private string _ffmpegPath = "";
@@ -62,7 +63,6 @@ namespace RealmAI {
                 return;
             
             _episodeNumber = episodeNumber;
-            _totalStepsCompleted = totalStepsCompleted;
             _currentReward = 0;
             
             if (_recordingEpisode) {
@@ -119,15 +119,9 @@ namespace RealmAI {
             
             var saveDirectory = Path.Combine(_realmAgent.SaveDirectory, "Videos");
             Directory.CreateDirectory(saveDirectory);
-            // TODO resolve filename conflicts across multiple environments
-            long count = 0;
-            var nameOk = false;
-            while (!nameOk) {
-                _recordingOutPath = Path.Combine(saveDirectory, $"{_totalStepsCompleted + count}");
-
-                nameOk = !File.Exists($"{_recordingOutPath}.{RecordingExtension}") && !File.Exists($"{_recordingOutPath}-temp.{RecordingExtension}");
-                count++;
-            }
+            var fileName = $"{_episodeNumber}-{Guid.NewGuid().ToString()}.{RecordingExtension}";
+            _finalRecordingPath = Path.Combine(saveDirectory, fileName);
+            _tempRecordingPath = Path.Combine(saveDirectory, $"temp-{fileName}");
 
             // frame rate
             // TODO: determine appropriate framerate for recording when training in editor (just try to track current framerate?)
@@ -146,7 +140,7 @@ namespace RealmAI {
             startInfo.UseShellExecute = false;
             startInfo.FileName = _ffmpegPath;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.Arguments = $"-f rawvideo -pixel_format rgb24 -video_size {_videoResolution.x}x{_videoResolution.y} -framerate {framerate} -i pipe: -vf vflip -y \"{_recordingOutPath}-temp.{RecordingExtension}\"";
+            startInfo.Arguments = $"-f rawvideo -pixel_format rgb24 -video_size {_videoResolution.x}x{_videoResolution.y} -framerate {framerate} -i pipe: -vf vflip -y \"{_tempRecordingPath}\"";
 
             startInfo.RedirectStandardInput = true;
             startInfo.RedirectStandardError = true; // ffmpeg outputs everything to std error    
@@ -154,7 +148,7 @@ namespace RealmAI {
             try {
                 _recordingProcess = Process.Start(startInfo);
                 if (_recordingProcess != null) {
-                    _recordingProcess.OutputDataReceived += (sender, args) => HandleProcessOutput(args.Data);
+                    _recordingProcess.ErrorDataReceived += (sender, args) => HandleProcessOutput(args.Data);
                     _recordingProcess.BeginErrorReadLine();
                 }
             } catch (Exception e) {
@@ -169,10 +163,10 @@ namespace RealmAI {
         }
         
         private void HandleProcessOutput(string line) {
-            if (string.IsNullOrEmpty(line)) {
+            if (!_logFfmpegOutput || string.IsNullOrEmpty(line)) {
                 return;
             }
-            
+
             Debug.Log($"<color=#44b5dbff>{line}</color>");
         }
 
@@ -245,31 +239,39 @@ namespace RealmAI {
                 _recordingProcess.Dispose();
             }
         }
-        
+
         private void ModifyMetadata() {
             var metadata = $"-metadata REALMAI_EPISODE={_episodeNumber} -metadata REALMAI_REWARD={_currentReward}";
 
-            ProcessStartInfo startInfo = new ProcessStartInfo();
+            var startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = true;
             startInfo.UseShellExecute = false;
             startInfo.FileName = _ffmpegPath;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.Arguments = $"-i \"{_recordingOutPath}-temp.{RecordingExtension}\" -c copy {metadata} \"{_recordingOutPath}.{RecordingExtension}\" -y";
+            startInfo.Arguments = $"-i \"{_tempRecordingPath}\" -c copy {metadata} \"{_finalRecordingPath}\" -y";
 
             startInfo.RedirectStandardError = true; // ffmpeg outputs everything to std error
 
             using (var process = Process.Start(startInfo)) {
                 if (process == null) {
-                    Debug.LogError("Failed to start FFmpeg process");
+                    Debug.LogError("Failed to start FFmpeg process for setting metadata");
                     return;
                 }
 
                 string output = process.StandardError.ReadToEnd();
                 process.WaitForExit();
-                Debug.Log("Set recording metadata: ffmpeg output:" + output);
+                if (_logFfmpegOutput) {
+                    Debug.Log($"Set recording metadata: ffmpeg output: {output}");
+                } else {
+                    Debug.Log($"Set recording metadata: REALMAI_EPISODE={_episodeNumber} REALMAI_REWARD={_currentReward}");
+                }
             }
 
-            File.Delete($"{_recordingOutPath}-temp.{RecordingExtension}");
+            try {
+                File.Delete($"{_tempRecordingPath}");
+            } catch (Exception e) {
+                Debug.LogException(e);
+            }
         }
     }
 }
