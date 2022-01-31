@@ -1,42 +1,23 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using Unity.MLAgents.Actuators;
 using UnityEngine;
 
 namespace RealmAI {
-
-    // TODO ADD EDITOR SCRIPT + validations
-    [Serializable]
-    public class RealmContinuousActionSpec {
-        public delegate float ContinuousHeuristicDelegate();
-        // TODO can also make presets like joysticks/key presses, things that can drop-in and replace common inputs
-        public SerializedFloatAction Callback = default;
-        public SerializedFloatFunc Heuristic = default;
-    }
-
-    [Serializable]
-    public class RealmDiscreteActionSpec {
-        public delegate int DiscreteHeuristicDelegate();
-
-        public int Branches = 2;
-        public SerializedIntAction Callback = default; //TODO we can also do one callback per branch
-        public SerializedIntFunc Heuristic = default;
-    }
-
     public class RealmActuatorComponent : ActuatorComponent {
-        [SerializeField] private RealmContinuousActionSpec[] _continuousActionSpecs = null;
-        [SerializeField] private RealmDiscreteActionSpec[] _discreteActionSpecs = null;
+        
+        [SerializeField] private RealmActionSpec[] _actions = null;
         private ActionSpec _actionSpec = default;
         private bool _actionSpecInitialized = false;
 
         public override IActuator[] CreateActuators() {
-            return new IActuator[] {new RealmActuator(_continuousActionSpecs, _discreteActionSpecs)};
+            return new IActuator[] {new RealmActuator(_actions)};
         }
 
         public override ActionSpec ActionSpec {
             get {
                 if (!_actionSpecInitialized) {
-                    _actionSpec = MakeActionSpec(_continuousActionSpecs, _discreteActionSpecs);
+                    _actionSpec = MakeActionSpec(_actions);
                     _actionSpecInitialized = true;
                 }
 
@@ -44,42 +25,80 @@ namespace RealmAI {
             }
         }
 
-        internal static ActionSpec MakeActionSpec(RealmContinuousActionSpec[] continuousActionSpecs, RealmDiscreteActionSpec[] discreteActionSpecs) {
-            return new ActionSpec(continuousActionSpecs.Length, discreteActionSpecs.Select(x => x.Branches).ToArray());
+        internal static ActionSpec MakeActionSpec(RealmActionSpec[] actions) {
+            var continuousActions = 0;
+            var discreteActions = new List<int>();
+            foreach (var action in actions) {
+                switch (action.DataType) {
+                    case ActionDataType.Bool:
+                        discreteActions.Add(2);
+                        break;
+                    case ActionDataType.Int:
+                        discreteActions.Add(Mathf.Max(2, action.IntMaxExclusive));
+                        break;
+                    case ActionDataType.Float:
+                        continuousActions++;
+                        break;
+                    case ActionDataType.Vector2:
+                        continuousActions += 2;
+                        break;
+                    case ActionDataType.Vector3:
+                        continuousActions += 3;
+                        break;
+                }
+            }
+
+            return new ActionSpec(continuousActions, discreteActions.ToArray());
         }
     }
 
     public class RealmActuator : IActuator {
-        [SerializeField] private RealmContinuousActionSpec[] _continuousActionSpecs = null;
-        [SerializeField] private RealmDiscreteActionSpec[] _discreteActionSpecs = null;
+        private RealmActionSpec[] _actions = null;
         private ActionSpec _actionSpec = default;
 
-        public RealmActuator(RealmContinuousActionSpec[] continuousActionSpecs, RealmDiscreteActionSpec[] discreteActionSpecs) {
-            _continuousActionSpecs = continuousActionSpecs;
-            _discreteActionSpecs = discreteActionSpecs;
-            _actionSpec = RealmActuatorComponent.MakeActionSpec(continuousActionSpecs, discreteActionSpecs);
+        public RealmActuator(RealmActionSpec[] actions) {
+            _actions = actions;
+            _actionSpec = RealmActuatorComponent.MakeActionSpec(_actions);
         }
 
-        public ActionSpec ActionSpec {
-            get { return _actionSpec; }
-        }
-
-        public String Name {
-            get { return "RealmActuator"; }
-        }
-
+        public ActionSpec ActionSpec => _actionSpec;
+        public String Name => "RealmActuator";
+        
         public void ResetData() {
 
         }
 
         public void OnActionReceived(ActionBuffers actionBuffers) {
-            for (int i = 0; i < _continuousActionSpecs.Length; i++) {
-                var spec = _continuousActionSpecs[i];
-                _continuousActionSpecs[i].Callback?.Invoke(actionBuffers.ContinuousActions[i]);
-            }
-
-            for (int i = 0; i < _discreteActionSpecs.Length; i++) {
-                _discreteActionSpecs[i].Callback?.Invoke(actionBuffers.DiscreteActions[i]);
+            var continuousActionIndex = 0;
+            var discreteActionIndex = 0;
+            foreach (var action in _actions) {
+                switch (action.DataType) {
+                    case ActionDataType.Bool:
+                        action.BoolCallback?.Invoke(actionBuffers.DiscreteActions[discreteActionIndex] == 1);
+                        discreteActionIndex++;
+                        break;
+                    case ActionDataType.Int:
+                        action.IntCallback?.Invoke(actionBuffers.DiscreteActions[discreteActionIndex]);
+                        discreteActionIndex++;
+                        break;
+                    case ActionDataType.Float:
+                        action.FloatCallback?.Invoke(actionBuffers.ContinuousActions[continuousActionIndex]);
+                        continuousActionIndex++;
+                        break;
+                    case ActionDataType.Vector2:
+                        var v2 = new Vector2(actionBuffers.ContinuousActions[continuousActionIndex],
+                            actionBuffers.ContinuousActions[continuousActionIndex + 1]);
+                        action.Vector2Callback?.Invoke(v2);
+                        continuousActionIndex += 2;
+                        break;
+                    case ActionDataType.Vector3:
+                        var v3 = new Vector3(actionBuffers.ContinuousActions[continuousActionIndex],
+                            actionBuffers.ContinuousActions[continuousActionIndex + 1],
+                            actionBuffers.ContinuousActions[continuousActionIndex + 2]);
+                        action.Vector3Callback?.Invoke(v3);
+                        continuousActionIndex += 3;
+                        break;
+                }
             }
         }
 
@@ -87,23 +106,36 @@ namespace RealmAI {
             var continuousActions = actionBuffersOut.ContinuousActions;
             var discreteActions = actionBuffersOut.DiscreteActions;
             
-            for (int i = 0; i < _continuousActionSpecs.Length; i++) {
-                // TODO Error checking?
-                if (_continuousActionSpecs[i].Heuristic != null) {
-                    var spec = _continuousActionSpecs[i];
-                    var val = _continuousActionSpecs[i].Heuristic.Invoke();
-                    continuousActions[i] = val;
-                } else {
-                    continuousActions[i] = 0;
-                }
-            }
-
-            for (int i = 0; i < _discreteActionSpecs.Length; i++) {
-                // TODO Error checking?
-                if (_discreteActionSpecs[i].Heuristic != null) {
-                    discreteActions[i] = _discreteActionSpecs[i].Heuristic.Invoke();
-                } else {
-                    discreteActions[i] = 0;
+            var continuousActionIndex = 0;
+            var discreteActionIndex = 0;
+            // TODO error checking and validate int max 
+            foreach (var action in _actions) {
+                switch (action.DataType) {
+                    case ActionDataType.Bool:
+                        discreteActions[discreteActionIndex] = (action.BoolHeuristic?.Invoke() ?? false) ? 0 : 1;
+                        discreteActionIndex++;
+                        break;
+                    case ActionDataType.Int:
+                        discreteActions[discreteActionIndex] = Mathf.Clamp(action.IntHeuristic?.Invoke() ?? 0, 0, action.IntMaxExclusive);
+                        discreteActionIndex++;
+                        break;
+                    case ActionDataType.Float:
+                        continuousActions[continuousActionIndex] = action.FloatHeuristic?.Invoke() ?? 0;
+                        continuousActionIndex++;
+                        break;
+                    case ActionDataType.Vector2:
+                        var v2 = action.Vector2Heuristic?.Invoke() ?? Vector2.zero;
+                        continuousActions[continuousActionIndex] = v2.x;
+                        continuousActions[continuousActionIndex + 1] = v2.y;
+                        continuousActionIndex += 2;
+                        break;
+                    case ActionDataType.Vector3:
+                        var v3 = action.Vector3Heuristic?.Invoke() ?? Vector3.zero;
+                        continuousActions[continuousActionIndex] = v3.x;
+                        continuousActions[continuousActionIndex + 1] = v3.y;
+                        continuousActions[continuousActionIndex + 2] = v3.y;
+                        continuousActionIndex += 3;
+                        break;
                 }
             }
         }

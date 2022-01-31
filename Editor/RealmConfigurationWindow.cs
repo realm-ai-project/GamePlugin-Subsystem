@@ -179,7 +179,7 @@ namespace RealmAI {
                 EditorGUILayout.HelpBox("Enter all possible tags on the colliders objects that should be detectable. " +
                                         "Colliders representing different types of objects should have different tags.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
-
+                
                 EditorGUILayout.PropertyField(gridSensor.FindProperty("_cellCount"), new GUIContent("Grid Cell Count"));
                 EditorGUILayout.HelpBox("The number of cells along each dimension of the grid. " +
                                         "This should make the grid large enough for the computer to play the game properly.", MessageType.None);
@@ -210,22 +210,14 @@ namespace RealmAI {
             GUILayout.Label("Controls", EditorStyles.largeLabel);
             EditorGUI.indentLevel++;
             {
-                EditorGUILayout.LabelField("This section contains setup to allow the computer to input commands and control the player. " +
-                                           "Actions are separated into continuous and discrete.", EditorStyles.wordWrappedLabel);
+                EditorGUILayout.LabelField("This section contains setup to allow the computer to input commands and control the player." +EditorStyles.wordWrappedLabel);
 
-                EditorGUILayout.PropertyField(realmActuator.FindProperty("_continuousActionSpecs"), new GUIContent("Continuous Actions"));
-                EditorGUILayout.HelpBox("Continuous actions are actions that can be represented by a float input, such as a joystick axis. " +
-                                        "For each continuous action that the player can take, provide a function to call when the computer wants " +
+                EditorGUILayout.PropertyField(realmActuator.FindProperty("_actions"), new GUIContent("Actions"));
+                EditorGUILayout.HelpBox("For each action that the player can take, provide a function to call when the computer wants " +
                                         "set a new input value for that action (callback) and a function to call to get a input value from a human player (heuristic, for debugging).",
                     MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
-                EditorGUILayout.PropertyField(realmActuator.FindProperty("_discreteActionSpecs"), new GUIContent("Discrete Actions"));
-                EditorGUILayout.HelpBox("Discrete actions are actions that can be represented by a boolean or integer input, such as a button press. " +
-                                        "For each discrete action that the player can take, provide a function to call when the computer wants " +
-                                        "set a new input value for that action (callback) and a function to call to get a input value from a human player (heuristic, for debugging).",
-                    MessageType.None);
-                EditorGUILayout.Space(spaceBetweenProperties);
                 realmActuator.ApplyModifiedProperties();
             }
             EditorGUI.indentLevel--;

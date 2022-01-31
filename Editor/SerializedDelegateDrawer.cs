@@ -175,6 +175,18 @@ namespace RealmAI {
     public class SerializedIntActionDrawer : SerializedActionDrawer<int> {
     }
     
+    [CustomPropertyDrawer(typeof(SerializedBoolAction))]
+    public class SerializedBoolActionDrawer : SerializedActionDrawer<int> {
+    }
+    
+    [CustomPropertyDrawer(typeof(SerializedVector2Action))]
+    public class SerializedVector2ActionDrawer : SerializedActionDrawer<Vector2> {
+    }
+
+    [CustomPropertyDrawer(typeof(SerializedVector3Action))]
+    public class SerializedVector3ActionDrawer : SerializedActionDrawer<Vector3> {
+    }
+
     [CustomPropertyDrawer(typeof(SerializedFloatFunc))]
     public class SerializedFloatFuncDrawer : SerializedFuncDrawer<float> {
     }
@@ -183,12 +195,16 @@ namespace RealmAI {
     public class SerializedIntFuncDrawer : SerializedFuncDrawer<int> {
     }
 
-    [CustomPropertyDrawer(typeof(SerializedVector2Delegate))]
-    public class SerializedVector2DelegateDrawer : SerializedFuncDrawer<Vector2> {
-    }
-
     [CustomPropertyDrawer(typeof(SerializedBoolFunc))]
     public class SerializedBoolFuncDrawer : SerializedFuncDrawer<bool> {
+    }
+    
+    [CustomPropertyDrawer(typeof(SerializedVector2Func))]
+    public class SerializedVector2FuncDrawer : SerializedFuncDrawer<Vector2> {
+    }
+
+    [CustomPropertyDrawer(typeof(SerializedVector3Func))]
+    public class SerializedVector3FuncDrawer : SerializedFuncDrawer<Vector3> {
     }
 
     [CustomPropertyDrawer(typeof(SerializedBoolIntFunc))]

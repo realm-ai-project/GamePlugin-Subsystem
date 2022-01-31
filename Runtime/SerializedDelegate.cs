@@ -150,6 +150,19 @@ namespace RealmAI {
     }
     
     [Serializable]
+    public class SerializedBoolAction : SerializedAction<bool> {
+    }
+    
+    [Serializable]
+    public class SerializedVector2Action : SerializedAction<Vector2> {
+    }
+    
+    [Serializable]
+    public class SerializedVector3Action : SerializedAction<Vector3> {
+    }
+
+    
+    [Serializable]
     public class SerializedFloatFunc : SerializedFunc<float> {
     }
 
@@ -158,11 +171,15 @@ namespace RealmAI {
     }
 
     [Serializable]
-    public class SerializedVector2Delegate : SerializedFunc<Vector2> {
-    }
-
-    [Serializable]
     public class SerializedBoolFunc : SerializedFunc<bool> {
+    }
+    
+    [Serializable]
+    public class SerializedVector2Func : SerializedFunc<Vector2> {
+    }
+    
+    [Serializable]
+    public class SerializedVector3Func : SerializedFunc<Vector3> {
     }
 
     [Serializable]
