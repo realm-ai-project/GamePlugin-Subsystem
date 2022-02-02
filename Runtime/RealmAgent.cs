@@ -13,6 +13,8 @@ namespace RealmAI {
 		[SerializeField] private SerializedBoolFunc _gameOverFunction = default;
 		[SerializeField] private float _episodeTimeout = -1;
 
+		public bool IsActive => isActiveAndEnabled;
+
 		private string _saveDirectory = "";
 
 		public string SaveDirectory {
