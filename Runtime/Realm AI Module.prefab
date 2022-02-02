@@ -1,5 +1,61 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2597553723946152371
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8931955653379332512}
+  - component: {fileID: 1745280995695786166}
+  m_Layer: 0
+  m_Name: Score
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8931955653379332512
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2597553723946152371}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2049881649950078003}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1745280995695786166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2597553723946152371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63f983c1fbda9704b9ab377b8ac8c425, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rewardFunction:
+    _target: {fileID: 0}
+    _script: {fileID: 0}
+    _methodName: 
+  _rewardRegions:
+  - Rects:
+    - serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    EnterReward: 0
+    StayRewardPerSecond: 0
 --- !u!1 &3604340832326486498
 GameObject:
   m_ObjectHideFlags: 0
@@ -30,7 +86,7 @@ Transform:
   m_Children:
   - {fileID: 4888279559872494341}
   m_Father: {fileID: 2049881649950078003}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4481804292444716366
 MonoBehaviour:
@@ -48,6 +104,7 @@ MonoBehaviour:
   _recordingCamera: {fileID: 6534901877959408365}
   _videoResolution: {x: 480, y: 270}
   _videosPerMillionSteps: 100
+  _logFfmpegOutput: 0
 --- !u!1 &3936234473448951908
 GameObject:
   m_ObjectHideFlags: 0
@@ -235,8 +292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6329d3ec5d38fe40a39c98593601f42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _continuousActionSpecs: []
-  _discreteActionSpecs: []
+  _actions: []
 --- !u!1 &8416939664504476726
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,7 +322,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2049881649950078003}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8072616143281511398
 MonoBehaviour:
@@ -315,6 +371,7 @@ Transform:
   m_Children:
   - {fileID: 9217989327636220972}
   - {fileID: 7024727809794216086}
+  - {fileID: 8931955653379332512}
   - {fileID: 4780453919410718079}
   - {fileID: 1299716597457167059}
   m_Father: {fileID: 0}
@@ -381,13 +438,14 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   _realmSensor: {fileID: 6293500372321809640}
+  _realmScore: {fileID: 1745280995695786166}
   _realmOwl: {fileID: 8072616143281511398}
   _realmRecorder: {fileID: 4481804292444716366}
-  _resetFunction:
+  _initializeFunction:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 
-  _rewardFunction:
+  _resetFunction:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 
@@ -395,3 +453,4 @@ MonoBehaviour:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 
+  _episodeTimeout: -1

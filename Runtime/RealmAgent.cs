@@ -5,13 +5,13 @@ using UnityEngine;
 namespace RealmAI {
 	public class RealmAgent : Agent {
 		[SerializeField] private RealmSensorComponent _realmSensor = default;
+		[SerializeField] private RealmScore _realmScore = default;
 		[SerializeField] private RealmOwl _realmOwl = default;
 		[SerializeField] private RealmRecorder _realmRecorder = default;
 		[SerializeField] private SerializedAction _initializeFunction = default;
 		[SerializeField] private SerializedAction _resetFunction = default;
 		[SerializeField] private SerializedBoolFunc _gameOverFunction = default;
 		[SerializeField] private float _episodeTimeout = -1;
-		[SerializeField] private SerializedFloatFunc _rewardFunction = default;
 
 		private string _saveDirectory = "";
 
@@ -34,6 +34,7 @@ namespace RealmAI {
 			_lastReward = 0;
 			_episodeDuration = 0;
 			_realmSensor.StartNewEpisode();
+			_realmScore.StartNewEpisode();
 			_realmOwl.StartNewEpisode(CompletedEpisodes);
 			_realmRecorder.StartEpisode(CompletedEpisodes, Academy.Instance.TotalStepCount);
 			if (!_initialized) {
@@ -56,7 +57,7 @@ namespace RealmAI {
 		}
 
 		private void UpdateReward() {
-			var currentReward = _rewardFunction?.Invoke() ?? 0;
+			var currentReward = _realmScore.GetScore();
 			var diff = currentReward - _lastReward;
 			if (Mathf.Abs(diff) > 1e-7) {
 				AddReward(diff);

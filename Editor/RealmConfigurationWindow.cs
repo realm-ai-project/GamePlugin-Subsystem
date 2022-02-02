@@ -121,6 +121,7 @@ namespace RealmAI {
             var realmSensor = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmSensorComponent>());
             var gridSensor = new SerializedObject(_realmModuleRoot.GetComponentInChildren<GridSensor2DComponent>());
             var realmActuator = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmActuatorComponent>());
+            var realmScore = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmScore>());
             var realmOwl = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmOwl>());
             var realmRecorder = new SerializedObject(_realmModuleRoot.GetComponentInChildren<RealmRecorder>());
 
@@ -145,10 +146,6 @@ namespace RealmAI {
                 EditorGUILayout.PropertyField(realmAgent.FindProperty("_resetFunction"), new GUIContent("Reset Function"));
                 EditorGUILayout.HelpBox("Provide a function that we can call to reset the game environment to its initial state. " +
                                         "This will be called at the start of the game (after the Initialize Function) and each time after the game is over.", MessageType.None);
-                EditorGUILayout.Space(spaceBetweenProperties);
-
-                EditorGUILayout.PropertyField(realmAgent.FindProperty("_rewardFunction"), new GUIContent("Reward Function"));
-                EditorGUILayout.HelpBox("Provide a function that we can call to get the current score achieved by the player.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
                 EditorGUILayout.PropertyField(realmAgent.FindProperty("_gameOverFunction"), new GUIContent("Game Over Function"));
@@ -223,6 +220,29 @@ namespace RealmAI {
                 EditorGUILayout.Space(spaceBetweenProperties);
 
                 realmActuator.ApplyModifiedProperties();
+            }
+            EditorGUI.indentLevel--;
+            HLine();
+
+            // GENERAL
+            GUILayout.Label("General", EditorStyles.largeLabel);
+            EditorGUI.indentLevel++;
+            {
+                EditorGUILayout.PropertyField(realmScore.FindProperty("_rewardFunction"), new GUIContent("Reward Function"));
+                EditorGUILayout.HelpBox("Provide a function that we can call to get the current score achieved by the player.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
+                
+                EditorGUILayout.PropertyField(realmScore.FindProperty("_rewardRegions"), new GUIContent("Reward Regions"));
+                EditorGUILayout.HelpBox("Alternatively, define regions that will automatically generate a score based on regions. " +
+                                        "When the player object first touches or stays within a region defined by 1 or mor Rects, they will be given points.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
+
+                EditorGUILayout.PropertyField(realmScore.FindProperty("_existentialPenaltyPerSecond"), new GUIContent("Existential Penalty"));
+                EditorGUILayout.HelpBox("Optionally, constantly decrease the score by this amount per second. " +
+                                        "A small existential penalty may lead to fast player behaviors being prefered over slower ones.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
+
+                realmScore.ApplyModifiedProperties();
             }
             EditorGUI.indentLevel--;
             HLine();
