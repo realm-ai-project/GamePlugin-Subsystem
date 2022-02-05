@@ -38,9 +38,10 @@ namespace RealmAI {
                         var label = "";
                         if (Mathf.Abs(region.EnterReward) > 1e-6f) {
                             label += region.EnterReward > 0 ? "+" : "";
-
+                            label += region.EnterReward;
+                            
                             if (Mathf.Abs(region.StayRewardPerSecond) > 1e-6f) {
-                                label += region.EnterReward + ", ";
+                                label += ", ";
                             }
                         }
 
@@ -49,7 +50,7 @@ namespace RealmAI {
                             label += region.StayRewardPerSecond + "/s";
                         }
 
-                        Handles.Label(new Vector3(Mathf.Min(rect.xMin, rect.xMax) + 2f, Mathf.Max(rect.yMin, rect.yMax) - 2f), label, EditorStyles.boldLabel);
+                        Handles.Label(new Vector3(Mathf.Min(rect.xMin, rect.xMax) + 0.1f, Mathf.Max(rect.yMin, rect.yMax) - 0.1f), label, EditorStyles.boldLabel);
                     }
 
                     Handles.DrawWireCube(rect.center, rect.size);

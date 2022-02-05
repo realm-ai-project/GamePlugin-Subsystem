@@ -19,7 +19,7 @@ namespace RealmAI {
 
         [MenuItem("Realm AI/Open Configuration Window")]
         public static void ShowWindow() {
-            GetWindow(typeof(RealmConfigurationWindow), false, "Realm AI Configuration", true);
+            GetWindow(typeof(RealmConfigurationWindow), false, "Realm AI Configuration Window", true);
         }
 
         private void LoadPlayerPrefabFromSettings() {
@@ -82,7 +82,7 @@ namespace RealmAI {
 
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
             if (prefabStage == null || prefabStage.assetPath != playerPrefabPath) {
-                if (GUILayout.Button("Open player prefab for Edit")) {
+                if (GUILayout.Button("Open player prefab for edit")) {
                     AssetDatabase.OpenAsset(_playerPrefab);
                 }
 

@@ -112,7 +112,7 @@ namespace RealmAI {
             foreach (var action in _actions) {
                 switch (action.DataType) {
                     case ActionDataType.Bool:
-                        discreteActions[discreteActionIndex] = (action.BoolHeuristic?.Invoke() ?? false) ? 0 : 1;
+                        discreteActions[discreteActionIndex] = (action.BoolHeuristic?.Invoke() ?? false) ? 1 : 0;
                         discreteActionIndex++;
                         break;
                     case ActionDataType.Int:

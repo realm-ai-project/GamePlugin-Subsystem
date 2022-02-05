@@ -138,19 +138,25 @@ namespace RealmAI {
             EnsureTemplatesExist();
 
             RunCommands(new[] {
-                "realm-report",
+                "realm-gui --dashboard",
             });
 
-            Application.OpenURL($"file://{DashboardPath}");
             Debug.Log("Starting dashboard...");
         }
 
         // TODO remove this option if it is not needed anymore
         [MenuItem("Realm AI/Kill Training Process")]
         private static void ExitTestCommandPrompt() {
-            if (_trainingProcess != null && !_trainingProcess.HasExited)
-                _trainingProcess.Kill();
-            _trainingProcess?.Dispose();
+            try {
+                if (_trainingProcess != null && !_trainingProcess.HasExited) {
+                    _trainingProcess.Kill();
+                }
+            } catch (Exception e) {
+                Debug.LogException(e);
+            } finally {
+                _trainingProcess?.Dispose();
+            }
+
             _trainingProcess = null;
         }
         

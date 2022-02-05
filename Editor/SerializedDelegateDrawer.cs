@@ -176,7 +176,7 @@ namespace RealmAI {
     }
     
     [CustomPropertyDrawer(typeof(SerializedBoolAction))]
-    public class SerializedBoolActionDrawer : SerializedActionDrawer<int> {
+    public class SerializedBoolActionDrawer : SerializedActionDrawer<bool> {
     }
     
     [CustomPropertyDrawer(typeof(SerializedVector2Action))]
