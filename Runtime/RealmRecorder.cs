@@ -62,14 +62,14 @@ namespace RealmAI {
             if (!isActiveAndEnabled)
                 return;
             
-            _episodeNumber = episodeNumber;
-            _currentReward = 0;
-            
             if (_recordingEpisode) {
                 StopRecording();
                 _recordingEpisode = false;
             }
             
+            _episodeNumber = episodeNumber;
+            _currentReward = 0;
+
             if (ShouldRecordVideo(totalStepsCompleted) || Input.GetKey(KeyCode.R)) {
                 _recordingEpisode = true;
                 StartRecording();

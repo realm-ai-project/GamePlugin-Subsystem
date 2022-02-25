@@ -144,21 +144,28 @@ namespace RealmAI {
             Debug.Log("Starting dashboard...");
         }
 
-        // TODO remove this option if it is not needed anymore
-        [MenuItem("Realm AI/Kill Training Process")]
-        private static void ExitTestCommandPrompt() {
-            try {
-                if (_trainingProcess != null && !_trainingProcess.HasExited) {
-                    _trainingProcess.Kill();
-                }
-            } catch (Exception e) {
-                Debug.LogException(e);
-            } finally {
-                _trainingProcess?.Dispose();
-            }
-
-            _trainingProcess = null;
+        
+        [MenuItem("Realm AI/Open Documentation")]
+        private static void OpenDocumentation() {
+            Application.OpenURL("https://realm-ai-project.github.io/documentation/installation/");
+            Debug.Log("Opening Documentation...");
         }
+        
+        // TODO remove this option if it is not needed anymore
+        // [MenuItem("Realm AI/Kill Training Process")]
+        // private static void ExitTestCommandPrompt() {
+        //     try {
+        //         if (_trainingProcess != null && !_trainingProcess.HasExited) {
+        //             _trainingProcess.Kill();
+        //         }
+        //     } catch (Exception e) {
+        //         Debug.LogException(e);
+        //     } finally {
+        //         _trainingProcess?.Dispose();
+        //     }
+        //
+        //     _trainingProcess = null;
+        // }
         
         #region Utility Functions
 
