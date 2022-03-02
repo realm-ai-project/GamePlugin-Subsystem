@@ -169,7 +169,6 @@ namespace RealmAI {
                 EditorGUILayout.PropertyField(realmSensor.FindProperty("_positionFunction"), new GUIContent("Position Function"));
                 EditorGUILayout.HelpBox("Provide a function that returns the current position of the player.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
-                realmSensor.ApplyModifiedProperties();
 
                 EditorGUILayout.LabelField("The computer will detect objects in its surroundings by detecting physics colliders in a grid.", EditorStyles.wordWrappedLabel);
                 EditorGUILayout.PropertyField(gridSensor.FindProperty("_colliderMask"), new GUIContent("Collider Mask"));
@@ -202,6 +201,16 @@ namespace RealmAI {
                     EditorGUILayout.Space(spaceBetweenProperties);
                 }
 
+                
+                EditorGUILayout.PropertyField(realmSensor.FindProperty("_customSensors"), new GUIContent("Additional State Sensors"));
+                EditorGUILayout.HelpBox("Optionally, provide additional functions that return a value representing some sort of state in the game " +
+                                        "that is otherwise not detectable by the grid above." +
+                                        "This will help the computer learn the game faster and perform better. " +
+                                        "For example, use this to provide the computer with internal states like player health, cooldown timers, or spell availability.",
+                    MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
+                
+                realmSensor.ApplyModifiedProperties();
                 gridSensor.ApplyModifiedProperties();
             }
             EditorGUI.indentLevel--;
