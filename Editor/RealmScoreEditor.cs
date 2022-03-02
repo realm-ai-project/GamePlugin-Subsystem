@@ -11,7 +11,7 @@ namespace RealmAI {
         private void OnSceneGUI() {
             var t = target as RealmScore;
 
-            if (t == null || t.RewardRegions == null)
+            if (t == null || t.RewardRegions == null || !t.ShowGizmos)
                 return;
 
             var c = Handles.color;
@@ -26,8 +26,6 @@ namespace RealmAI {
                 var region = t.RewardRegions[i];
                 if (!region.Enabled)
                     continue;
-
-
 
                 Handles.color = region.DebugColor;
                 GUI.color = region.DebugColor;
@@ -63,7 +61,7 @@ namespace RealmAI {
                     var handle2Pos = Handles.FreeMoveHandle(rect.center + rect.size / 2f, Quaternion.identity, handleSize, handleSnap, Handles.SphereHandleCap);
 
                     if (EditorGUI.EndChangeCheck()) {
-                        Undo.RecordObject(t, "Change RewardRegion Rect");
+                        Undo.RecordObject(t, "Change RealmAI RewardRegion Rect");
                         region.Rects[j] = Rect.MinMaxRect(handle1Pos.x, handle1Pos.y, handle2Pos.x, handle2Pos.y);
                     }
                 }
@@ -71,15 +69,6 @@ namespace RealmAI {
 
             Handles.color = c;
             GUI.color = g;
-        }
-
-        private Vector3[] GetVertices(Rect rect) {
-            return new[] {
-                new Vector3(rect.x, rect.y, 0f),
-                new Vector3(rect.x + rect.width, rect.y, 0f),
-                new Vector3(rect.x + rect.width, rect.y + rect.height, 0f),
-                new Vector3(rect.x, rect.y + rect.height, 0f),
-            };
         }
     }
 }

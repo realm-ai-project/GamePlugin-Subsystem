@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 namespace RealmAI {
     public class RealmScore : MonoBehaviour {
@@ -18,11 +17,14 @@ namespace RealmAI {
         [SerializeField] private SerializedFloatFunc _rewardFunction = default;
         [SerializeField] private RewardRegion[] _rewardRegions = default;
         [SerializeField] private float _existentialPenaltyPerSecond = 0;
+        [SerializeField] private bool _showGizmos = false;
 
         public RewardRegion[] RewardRegions {
             get => _rewardRegions;
             set => _rewardRegions = value;
         }
+        
+        public bool ShowGizmos => _showGizmos;
 
         private float _additionalScore = 0;
         private float _baseScore = 0;

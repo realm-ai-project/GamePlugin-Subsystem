@@ -4,8 +4,8 @@ using UnityEditor;
 using UnityEngine;
 
 namespace RealmAI {
-    [CustomPropertyDrawer(typeof(RealmActionSpec))]
-    public class RealmActionSpecDrawer : PropertyDrawer {
+    [CustomPropertyDrawer(typeof(RealmSensorSpec))]
+    public class RealmSensorSpecDrawer : PropertyDrawer {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             EditorGUI.BeginProperty(position, label, property);
 
@@ -18,32 +18,28 @@ namespace RealmAI {
             position.height -= labelSize.y;
 
             var dataTypeProp = property.FindPropertyRelative("DataType");
-            var dataType = (ActionDataType) dataTypeProp.enumValueIndex;
+            var dataType = (SensorDataType) dataTypeProp.enumValueIndex;
 
             EditorGUI.indentLevel++;
             position = PropertyField(position, property, "Label", "Label (Debug Only)");
             position = PropertyField(position, property, "DataType", "Data Type");
             switch (dataType) {
-                case ActionDataType.Bool:
-                    position = PropertyField(position, property, "BoolCallback", "Callback");
-                    position = PropertyField(position, property, "BoolHeuristic", "Heuristic");
+                case SensorDataType.Bool:
+                    position = PropertyField(position, property, "BoolFunc", "Function");
                     break;
-                case ActionDataType.Int:
-                    position = PropertyField(position, property, "IntCallback", "Callback");
-                    position = PropertyField(position, property, "IntHeuristic", "Heuristic");
+                case SensorDataType.Int:
+                    position = PropertyField(position, property, "IntFunc", "Function");
+                    position = PropertyField(position, property, "IntMin", "Int Value (Inclusive)");
                     position = PropertyField(position, property, "IntMaxExclusive", "Max Value (Exclusive)");
                     break;
-                case ActionDataType.Float:
-                    position = PropertyField(position, property, "FloatCallback", "Callback");
-                    position = PropertyField(position, property, "FloatHeuristic", "Heuristic");
+                case SensorDataType.Float:
+                    position = PropertyField(position, property, "FloatFunc", "Function");
                     break;
-                case ActionDataType.Vector2:
-                    position = PropertyField(position, property, "Vector2Callback", "Callback");
-                    position = PropertyField(position, property, "Vector2Heuristic", "Heuristic");
+                case SensorDataType.Vector2:
+                    position = PropertyField(position, property, "Vector2Func", "Function");
                     break;
-                case ActionDataType.Vector3:
-                    position = PropertyField(position, property, "Vector3Callback", "Callback");
-                    position = PropertyField(position, property, "Vector3Heuristic", "Heuristic");
+                case SensorDataType.Vector3:
+                    position = PropertyField(position, property, "Vector3Func", "Function");
                     break;
             }
 
@@ -70,30 +66,26 @@ namespace RealmAI {
             height += 3 * EditorGUIUtility.standardVerticalSpacing;
             switch (dataType) {
                 case ActionDataType.Bool:
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("BoolCallback"));
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("BoolHeuristic"));
-                    height += 2 * EditorGUIUtility.standardVerticalSpacing;
+                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("BoolFunc"));
+                    height += 1 * EditorGUIUtility.standardVerticalSpacing;
                     break;
                 case ActionDataType.Int:
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("IntCallback"));
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("IntHeuristic"));
+                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("IntFunc"));
+                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("IntMin"));
                     height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("IntMaxExclusive"));
                     height += 3 * EditorGUIUtility.standardVerticalSpacing;
                     break;
                 case ActionDataType.Float:
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("FloatCallback"));
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("FloatHeuristic"));
-                    height += 2 * EditorGUIUtility.standardVerticalSpacing;
+                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("FloatFunc"));
+                    height += 1 * EditorGUIUtility.standardVerticalSpacing;
                     break;
                 case ActionDataType.Vector2:
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vector2Callback"));
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vector2Heuristic"));
-                    height += 2 * EditorGUIUtility.standardVerticalSpacing;
+                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vector2Func"));
+                    height += 1 * EditorGUIUtility.standardVerticalSpacing;
                     break;
                 case ActionDataType.Vector3:
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vector3Callback"));
-                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vector3Heuristic"));
-                    height += 2 * EditorGUIUtility.standardVerticalSpacing;
+                    height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("Vector3Func"));
+                    height += 1 * EditorGUIUtility.standardVerticalSpacing;
                     break;
             }
 

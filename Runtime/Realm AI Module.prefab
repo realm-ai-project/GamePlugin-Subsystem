@@ -48,7 +48,8 @@ MonoBehaviour:
     _script: {fileID: 0}
     _methodName: 
   _rewardRegions:
-  - Rects:
+  - Enabled: 1
+    Rects:
     - serializedVersion: 2
       x: 0
       y: 0
@@ -56,6 +57,8 @@ MonoBehaviour:
       height: 0
     EnterReward: 0
     StayRewardPerSecond: 0
+    DebugColor: {r: 1, g: 1, b: 1, a: 1}
+  _existentialPenaltyPerSecond: 0
 --- !u!1 &3604340832326486498
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,7 +106,7 @@ MonoBehaviour:
   _realmAgent: {fileID: 4429466108806940741}
   _recordingCamera: {fileID: 6534901877959408365}
   _videoResolution: {x: 480, y: 270}
-  _videosPerMillionSteps: 100
+  _videosPerMillionSteps: 10
   _logFfmpegOutput: 0
 --- !u!1 &3936234473448951908
 GameObject:

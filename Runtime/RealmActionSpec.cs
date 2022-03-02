@@ -15,6 +15,8 @@ namespace RealmAI {
     
 	[Serializable]
 	public class RealmActionSpec {
+		// This could have been a single generic action/func but... XD
+		public string Label = "Action";
 		public ActionDataType DataType = ActionDataType.Float;
 		public SerializedFloatAction FloatCallback = default;
 		public SerializedFloatFunc FloatHeuristic = default;
@@ -28,5 +30,4 @@ namespace RealmAI {
 		public SerializedVector3Func Vector3Heuristic = default;
 		public int IntMaxExclusive = 1;
 	}
-    
 }
