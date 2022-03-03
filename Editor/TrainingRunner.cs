@@ -17,7 +17,7 @@ namespace RealmAI {
         private static string DashboardApiDir => Path.Combine(FilesInProjectDir, "Dashboard", "api");
         private static string TemplatesPath => Path.Combine("Packages", "com.realmai.unity", "Editor", "Templates");
 
-        
+
 #if UNITY_EDITOR_WIN
         private const string CommandProcess = "cmd";
 #else
@@ -59,10 +59,19 @@ namespace RealmAI {
             }
         }
 
-        [MenuItem("Realm AI/Build and Train")]
-        private static void TrainWithBuild() {
-            if (!EditorApplication.isPlayingOrWillChangePlaymode) {
+        [MenuItem("Realm AI/Make Build and Train")]
+        private static void BuildAndTrainWithBuild() {
+            _TrainWithBuild(true);
+        }
 
+        [MenuItem("Realm AI/Train with Existing Build")]
+        private static void TrainWithBuild() {
+            _TrainWithBuild(false);
+        }
+
+        private static void _TrainWithBuild(bool makeNewBuild) {
+            
+            if (!EditorApplication.isPlayingOrWillChangePlaymode) {
                 var extension = "";
 #if UNITY_EDITOR_WIN
                 extension = "exe";
@@ -78,26 +87,29 @@ namespace RealmAI {
                 Debug.LogError("Build not support on this platform (but trying anyway...)");
 #endif
 
-                var buildPath = EditorUtility.SaveFilePanel("Choose Location of Built Game", "", DefaultTrainingBuildName, extension);
+                var title = makeNewBuild ? "Select Save Location for Build" : "Select Build Executable";
+                var buildPath = EditorUtility.SaveFilePanel(title, "", DefaultTrainingBuildName, extension);
                 if (string.IsNullOrEmpty(buildPath))
                     return;
 
                 var behaviorName = GetBehaviorName() ?? FindBehaviorNameFromScene();
 
-                var buildReport = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, buildPath, EditorUserBuildSettings.selectedStandaloneTarget, BuildOptions.None);
-                switch (buildReport.summary.result) {
-                    case BuildResult.Succeeded:
-                        Debug.Log($"Build for training completed after {buildReport.summary.totalTime}s, starting training process...");
-                        break;
-                    case BuildResult.Cancelled:
-                        Debug.Log($"Build for training cancelled.");
-                        return;
-                    case BuildResult.Failed:
-                        Debug.LogError($"Build for training failed with {buildReport.summary.totalErrors} errors");
-                        return;
-                    case BuildResult.Unknown:
-                        Debug.LogError($"Build for training has suffered an unknown fate. Trying to train with it anyway...");
-                        break;
+                if (makeNewBuild) {
+                    var buildReport = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, buildPath, EditorUserBuildSettings.selectedStandaloneTarget, BuildOptions.None);
+                    switch (buildReport.summary.result) {
+                        case BuildResult.Succeeded:
+                            Debug.Log($"Build for training completed after {buildReport.summary.totalTime}s, starting training process...");
+                            break;
+                        case BuildResult.Cancelled:
+                            Debug.Log($"Build for training cancelled.");
+                            return;
+                        case BuildResult.Failed:
+                            Debug.LogError($"Build for training failed with {buildReport.summary.totalErrors} errors");
+                            return;
+                        case BuildResult.Unknown:
+                            Debug.LogError($"Build for training has suffered an unknown fate. Trying to train with it anyway...");
+                            break;
+                    }
                 }
 
                 // run scripts

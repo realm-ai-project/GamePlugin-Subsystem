@@ -56,6 +56,7 @@ namespace RealmAI {
 			// open file for writing
 			var saveDirectory = Path.Combine(_realmAgent.SaveDirectory, "Data");
 			Directory.CreateDirectory(saveDirectory);
+			// var count = _instanceId;
 			var count = _instanceId;
 			while (count < 1e5) {
 				try {

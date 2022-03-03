@@ -99,7 +99,6 @@ namespace RealmAI {
 					}
 				}
 
-				Debug.Log(string.Join(" ", args));
 				if (!string.IsNullOrEmpty(customPathArg)) {
 					// custom path is provided
 					return customPathArg;
