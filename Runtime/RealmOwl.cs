@@ -62,19 +62,14 @@ namespace RealmAI {
 				try {
 					var path = Path.Combine(saveDirectory, $"{_filePrefix}-{count}.{fileExtension}");
 					var fileExists = File.Exists(path);
-					if (fileExists && _storageFormat == StorageFormat.Json) {
-						// the json writer cannot append to existing json files so we'll make a new json file instead
+					if (fileExists) {
 						count++;
 						continue;
 					}
 					
-					var fileStream = File.Open(path, FileMode.Append, FileAccess.Write, FileShare.None);
+					var fileStream = File.Open(path, FileMode.CreateNew, FileAccess.Write, FileShare.None);
 					_fileWriter.Initialize(fileStream);
-					if (fileExists) {
-						Debug.Log($"Appending to existing data on {path}");
-					} else {
-						Debug.Log($"Saving data to {path}");
-					}
+					Debug.Log($"Saving data to {path}");
 					break;
 				} catch (IOException e) {
 					// exception for file sharing violation
