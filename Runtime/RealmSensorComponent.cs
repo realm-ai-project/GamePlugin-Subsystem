@@ -64,9 +64,7 @@ namespace RealmAI {
             var rect = approximateMapBounds;
             _mapMin = new Vector2(Mathf.Min(rect.x, rect.x + rect.width), Mathf.Min(rect.y, rect.y + rect.height));
             _mapMax = new Vector2(Mathf.Max(rect.x, rect.x + rect.width), Mathf.Max(rect.y, rect.y + rect.height));
-            if (Mathf.Abs(rect.width) <= 1e-5 || Mathf.Abs(rect.height) <= 1e-5) {
-                _normalizePos = true;
-            }
+            _normalizePos = Mathf.Abs(rect.width) > 1e-5 && Mathf.Abs(rect.height) > 1e-5;
             
             // observation spec
             var observationSize = 2;
@@ -110,7 +108,7 @@ namespace RealmAI {
             _observations.Clear();
             
             // position
-            var position = _positionFunction.Invoke();
+            var position = _positionFunction?.Invoke() ?? Vector2.zero;
             if (_normalizePos) {
                 position = (position - _mapMin) / (_mapMax - _mapMin);
             }

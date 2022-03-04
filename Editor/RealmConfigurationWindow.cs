@@ -170,6 +170,11 @@ namespace RealmAI {
                 EditorGUILayout.HelpBox("Provide a function that returns the current position of the player.", MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
 
+                EditorGUILayout.PropertyField(realmSensor.FindProperty("_approximateMapBounds"), new GUIContent("Map Bounds"));
+                EditorGUILayout.HelpBox("Optionally, describe the approximate boundaries of where the player can go. " +
+                                        "This will help speed up training. Otherwise, leave it as a 1 by 1 rect.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
+
                 EditorGUILayout.LabelField("The computer will detect objects in its surroundings by detecting physics colliders in a grid.", EditorStyles.wordWrappedLabel);
                 EditorGUILayout.PropertyField(gridSensor.FindProperty("_colliderMask"), new GUIContent("Collider Mask"));
                 EditorGUILayout.HelpBox("Select all layers which have important colliders the player should know about.", MessageType.None);
@@ -201,7 +206,6 @@ namespace RealmAI {
                     EditorGUILayout.Space(spaceBetweenProperties);
                 }
 
-                
                 EditorGUILayout.PropertyField(realmSensor.FindProperty("_customSensors"), new GUIContent("Additional State Sensors"));
                 EditorGUILayout.HelpBox("Optionally, provide additional functions that return a value representing some sort of state in the game " +
                                         "that is otherwise not detectable by the grid above." +
@@ -209,7 +213,13 @@ namespace RealmAI {
                                         "For example, use this to provide the computer with internal states like player health, cooldown timers, or spell availability.",
                     MessageType.None);
                 EditorGUILayout.Space(spaceBetweenProperties);
-                
+
+                EditorGUILayout.PropertyField(realmSensor.FindProperty("_showGizmos"), new GUIContent("Show Sensor Gizmos"));
+                EditorGUILayout.HelpBox("Enable gizmos that will list out all the sensor observations, so you can see if their values are correct. " +
+                                        "Note that values will be converted to floating types, and integers will be normalized to within the range [0, 1]. " +
+                                        "If the approximate map bounds are set, the position displayed will also be normalized to those bounds.", MessageType.None);
+                EditorGUILayout.Space(spaceBetweenProperties);
+
                 realmSensor.ApplyModifiedProperties();
                 gridSensor.ApplyModifiedProperties();
             }
@@ -234,7 +244,7 @@ namespace RealmAI {
             HLine();
 
             // GENERAL
-            GUILayout.Label("General", EditorStyles.largeLabel);
+            GUILayout.Label("Rewards", EditorStyles.largeLabel);
             EditorGUI.indentLevel++;
             {
                 EditorGUILayout.PropertyField(realmScore.FindProperty("_rewardFunction"), new GUIContent("Reward Function"));

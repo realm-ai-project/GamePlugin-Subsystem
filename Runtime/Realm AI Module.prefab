@@ -47,18 +47,9 @@ MonoBehaviour:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 
-  _rewardRegions:
-  - Enabled: 1
-    Rects:
-    - serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
-    EnterReward: 0
-    StayRewardPerSecond: 0
-    DebugColor: {r: 1, g: 1, b: 1, a: 1}
+  _rewardRegions: []
   _existentialPenaltyPerSecond: 0
+  _showGizmos: 0
 --- !u!1 &3604340832326486498
 GameObject:
   m_ObjectHideFlags: 0
@@ -157,7 +148,15 @@ MonoBehaviour:
     _target: {fileID: 0}
     _script: {fileID: 0}
     _methodName: 
+  _approximateMapBounds:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  _customSensors: []
   _positionRecordInterval: 0.5
+  _showGizmos: 0
 --- !u!114 &5188558230583100200
 MonoBehaviour:
   m_ObjectHideFlags: 0
