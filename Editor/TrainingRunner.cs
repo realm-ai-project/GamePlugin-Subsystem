@@ -190,7 +190,8 @@ namespace RealmAI {
                 RedirectStandardOutput = true
             };
 
-            _trainingProcess?.Dispose();
+            // _trainingProcess?.Dispose();
+            
             _trainingProcess = new Process {StartInfo = startInfo};
             _trainingProcess.OutputDataReceived += (sender, args) => HandleTrainingProcessOutput(args.Data);
             _trainingProcess.ErrorDataReceived += (sender, args) => HandleTrainingProcessOutput(args.Data);
