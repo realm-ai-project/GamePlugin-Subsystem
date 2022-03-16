@@ -230,8 +230,10 @@ namespace RealmAI {
             if (line.StartsWith("realm-gui started successfully")) {
                 line = line.Replace("successfully", $"<color=green>successfully</color>");
                 Debug.Log($"<color=#b45cf2ff>{line}</color>");
-                // _trainingProcess?.Dispose();
-                // _trainingProcess = null;
+                _trainingProcess.CancelOutputRead();
+                _trainingProcess.CancelErrorRead();
+                // _trainingProcess.Dispose()? it seems to cause problems... 
+                _trainingProcess = null;
             } else {
                 Debug.Log($"<color=#b45cf2ff>{line}</color>");
             }
